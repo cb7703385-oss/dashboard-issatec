@@ -1,0 +1,39 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : [{"Hora_Minuto":"00:00","
+                    Atendidos":1,"Abandonos":
+                    0,"Total_Turnos":1,"Segun
+                    dos_Espera":null,"Segundo
+                    s_Servicio":null,"Oficina
+                    ":"TOTAL","Servicio":"TOT
+                    AL"},{"Hora_Minuto":"06:0
+                    0","Atendidos":545,"Aband
+                    ...
+RawContent        : HTTP/1.1 200 OK
+                    Access-Control-Allow-Orig
+                    in: *
+                    Connection: keep-alive
+                    Keep-Alive: timeout=5
+                    Content-Length: 1087
+                    Content-Type: 
+                    application/json; 
+                    charset=utf-8
+                    Date: Fri, 06 Feb 2026 
+                    15:55:01 GMT...
+Forms             : {}
+Headers           : {[Access-Control-Allow-Or
+                    igin, *], [Connection, 
+                    keep-alive], 
+                    [Keep-Alive, timeout=5], 
+                    [Content-Length, 
+                    1087]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 1087
+
+
+

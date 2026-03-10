@@ -1,0 +1,1032 @@
+{
+  "data": [
+    {
+      "Hora_Minuto": "05:00",
+      "Atendidos": 1,
+      "Abandonos": 0,
+      "Segundos_Espera": 66.5,
+      "Segundos_Servicio": 83,
+      "Total_Turnos": 1
+    },
+    {
+      "Hora_Minuto": "06:00",
+      "Atendidos": 789,
+      "Abandonos": 1,
+      "Segundos_Espera": 1452.0719178082218,
+      "Segundos_Servicio": 512.348542458809,
+      "Total_Turnos": 790
+    },
+    {
+      "Hora_Minuto": "07:00",
+      "Atendidos": 960,
+      "Abandonos": 11,
+      "Segundos_Espera": 2194.035232383805,
+      "Segundos_Servicio": 472.3781250000002,
+      "Total_Turnos": 971
+    },
+    {
+      "Hora_Minuto": "08:00",
+      "Atendidos": 1215,
+      "Abandonos": 34,
+      "Segundos_Espera": 2154.8402061855704,
+      "Segundos_Servicio": 461.09218106995917,
+      "Total_Turnos": 1249
+    },
+    {
+      "Hora_Minuto": "09:00",
+      "Atendidos": 1381,
+      "Abandonos": 40,
+      "Segundos_Espera": 1270.7160883280742,
+      "Segundos_Servicio": 466.25054308471965,
+      "Total_Turnos": 1421
+    },
+    {
+      "Hora_Minuto": "10:00",
+      "Atendidos": 1173,
+      "Abandonos": 59,
+      "Segundos_Espera": 1219.168316831682,
+      "Segundos_Servicio": 345.65728900255806,
+      "Total_Turnos": 1232
+    },
+    {
+      "Hora_Minuto": "11:00",
+      "Atendidos": 1317,
+      "Abandonos": 64,
+      "Segundos_Espera": 903.2770137524553,
+      "Segundos_Servicio": 385.3963553530745,
+      "Total_Turnos": 1381
+    },
+    {
+      "Hora_Minuto": "12:00",
+      "Atendidos": 750,
+      "Abandonos": 36,
+      "Segundos_Espera": 1071.3861788617894,
+      "Segundos_Servicio": 327.4506666666669,
+      "Total_Turnos": 786
+    },
+    {
+      "Hora_Minuto": "13:00",
+      "Atendidos": 1015,
+      "Abandonos": 41,
+      "Segundos_Espera": 641.7000000000004,
+      "Segundos_Servicio": 401.43054187192143,
+      "Total_Turnos": 1056
+    },
+    {
+      "Hora_Minuto": "14:00",
+      "Atendidos": 5,
+      "Abandonos": 10,
+      "Segundos_Espera": null,
+      "Segundos_Servicio": 57.4,
+      "Total_Turnos": 15
+    }
+  ],
+  "globals": {
+    "Global_TotalTurnos": 8902,
+    "Global_Atendidos": 8606,
+    "Global_Abandonados": 296,
+    "Global_AvgEsperaSeg": 1586.234081820978,
+    "Global_AvgAtencionSeg": 421.5986521031825,
+    "Global_AvgWaitingTimeWarning": 748.7257461370202,
+    "Global_AvgWaitingTimeCritical": 1112.2331193113655,
+    "Global_AvgServiceTimeWarning": 449.93649897692734,
+    "Global_AvgServiceTimeCritical": 565.0956043180735,
+    "GlobalOficina_TotalTurnos": 8902,
+    "GlobalOficina_Atendidos": 8606,
+    "GlobalOficina_Abandonados": 296,
+    "GlobalOficina_AvgEsperaSeg": 1586.234081820978,
+    "GlobalOficina_AvgAtencionSeg": 421.5986521031825,
+    "Oficina_AvgWaitingTimeWarning": 748.7257461370202,
+    "Oficina_AvgWaitingTimeCritical": 1112.2331193113655,
+    "Oficina_AvgServiceTimeWarning": 449.93649897692734,
+    "Oficina_AvgServiceTimeCritical": 565.0956043180735,
+    "TotalTurnosPorServicio": 4178,
+    "AtendidosPorServicio": 4062,
+    "AbandonadosPorServicio": 116,
+    "AvgEsperaSeg_Servicio": 1694.7669841269847,
+    "AvgAtencionSeg_Servicio": 481.23510585918274,
+    "WaitingTimeWarning": 960,
+    "WaitingTimeCritical": 1440,
+    "ServiceTimeWarning": 600,
+    "ServiceTimeCritical": 660,
+    "Oficinas_Espera_Critical": 18,
+    "Oficinas_Espera_Warning": 7,
+    "Oficinas_Servicio_Critical": 4,
+    "Oficinas_Servicio_Warning": 9,
+    "Total_Oficinas": 29,
+    "Servicios_Espera_Critical": 5,
+    "Servicios_Espera_Warning": 3,
+    "Servicios_Servicio_Critical": 3,
+    "Servicios_Servicio_Warning": 1,
+    "Total_Servicios": 8,
+    "OficinasByService_Espera_Critical": 17,
+    "OficinasByService_Espera_Warning": 6,
+    "OficinasByService_Servicio_Critical": 8,
+    "OficinasByService_Servicio_Warning": 4,
+    "OficinasByService_Total": 29,
+    "Top_Unidades_Espera": [
+      {
+        "Oficina": "PD-Barrancabermeja",
+        "AvgEspera": 4561.03314917127,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Cali 4",
+        "AvgEspera": 3479.855263157892,
+        "WaitingTimeCritical": 1260,
+        "WaitingTimeWarning": 900,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Oficina": "PD-Jamundí​",
+        "AvgEspera": 3084.137440758294,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Montería 2",
+        "AvgEspera": 3031.233009708738,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Espinal",
+        "AvgEspera": 2761.0701754385964,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Palmira 1",
+        "AvgEspera": 2711.747692307693,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Tuluá 2",
+        "AvgEspera": 2265.2074468085098,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Chaparral",
+        "AvgEspera": 2184.7666666666664,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Honda",
+        "AvgEspera": 2089.3004115226327,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Pradera",
+        "AvgEspera": 2073.8080808080817,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Sincelejo 2 ",
+        "AvgEspera": 1994.9308510638298,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Floridablanca",
+        "AvgEspera": 1747.784210526316,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Cali 5",
+        "AvgEspera": 1718.286792452831,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Candelaria",
+        "AvgEspera": 1706.9851851851859,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Montería 1",
+        "AvgEspera": 1685.5652173913047,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-San Gil 2​",
+        "AvgEspera": 1614.4419889502765,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Sincelejo​",
+        "AvgEspera": 1337.432870370371,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cali 6",
+        "AvgEspera": 1326.1024096385543,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cartagena 2",
+        "AvgEspera": 1232.5081081081078,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Valledupar",
+        "AvgEspera": 1153.3193717277493,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-EPS Disfarma",
+        "AvgEspera": 1109.6947368421063,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Cartagena 3",
+        "AvgEspera": 1086.7313432835822,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Cartagena 4",
+        "AvgEspera": 1017.7608695652175,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Ibagué evento 2",
+        "AvgEspera": 827.4406779661016,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Soacha 3",
+        "AvgEspera": 809.8142857142858,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Yumbo",
+        "AvgEspera": 767.495,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Buenaventura",
+        "AvgEspera": 503.60000000000014,
+        "WaitingTimeCritical": 1260,
+        "WaitingTimeWarning": 900,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Oficina": "PD-Palmira 2",
+        "AvgEspera": 454.0652173913043,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Montería 3​",
+        "AvgEspera": 373.2968152866238,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      }
+    ],
+    "Top_Unidades_Servicio": [
+      {
+        "Oficina": "PD-Cartagena 2",
+        "AvgServicio": 622.8502202643174,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Tuluá 2",
+        "AvgServicio": 590.0238095238095,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Cali 6",
+        "AvgServicio": 577.9438775510203,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Pradera",
+        "AvgServicio": 555.3605442176873,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Sincelejo 2 ",
+        "AvgServicio": 538.4718614718612,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cartagena 3",
+        "AvgServicio": 536.2315436241613,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Valledupar",
+        "AvgServicio": 519.6079664570226,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Yumbo",
+        "AvgServicio": 501.7676348547716,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Montería 2",
+        "AvgServicio": 495.77717391304344,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Floridablanca",
+        "AvgServicio": 495.32147742818006,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Palmira 1",
+        "AvgServicio": 473.25285171102684,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Montería 1",
+        "AvgServicio": 437.03999999999996,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Chaparral",
+        "AvgServicio": 429.28735632183907,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Barrancabermeja",
+        "AvgServicio": 421.0481927710845,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-San Gil 2​",
+        "AvgServicio": 415.8660714285714,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Espinal",
+        "AvgServicio": 412.03305785123956,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Sincelejo​",
+        "AvgServicio": 405.8330308529944,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cartagena 4",
+        "AvgServicio": 402.3709677419355,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cali 5",
+        "AvgServicio": 397.36111111111126,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Montería 3​",
+        "AvgServicio": 390.8420398009953,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 960
+      },
+      {
+        "Oficina": "PD-Cali 4",
+        "AvgServicio": 383.776371308017,
+        "WaitingTimeCritical": 1260,
+        "WaitingTimeWarning": 900,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Oficina": "PD-Jamundí​",
+        "AvgServicio": 363.83922829581996,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Palmira 2",
+        "AvgServicio": 353.64814814814815,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-EPS Disfarma",
+        "AvgServicio": 331.8357771260998,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 480
+      },
+      {
+        "Oficina": "PD-Ibagué evento 2",
+        "AvgServicio": 328.2333333333334,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Soacha 3",
+        "AvgServicio": 227.23595505617976,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Honda",
+        "AvgServicio": 222.14234875444836,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Oficina": "PD-Buenaventura",
+        "AvgServicio": 169.7692307692308,
+        "WaitingTimeCritical": 1260,
+        "WaitingTimeWarning": 900,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Oficina": "PD-Candelaria",
+        "AvgServicio": 47.55223880597014,
+        "WaitingTimeCritical": 2760,
+        "WaitingTimeWarning": 2100,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      }
+    ],
+    "Top_Unidades_Volumen": [
+      {
+        "Oficina": "PD-Montería 3​",
+        "TotalVolumen": 935
+      },
+      {
+        "Oficina": "PD-Floridablanca",
+        "TotalVolumen": 892
+      },
+      {
+        "Oficina": "PD-Sincelejo​",
+        "TotalVolumen": 649
+      },
+      {
+        "Oficina": "PD-Palmira 1",
+        "TotalVolumen": 617
+      },
+      {
+        "Oficina": "PD-Valledupar",
+        "TotalVolumen": 549
+      },
+      {
+        "Oficina": "PD-Ibagué evento 2",
+        "TotalVolumen": 490
+      },
+      {
+        "Oficina": "PD-Cali 5",
+        "TotalVolumen": 408
+      },
+      {
+        "Oficina": "PD-Barrancabermeja",
+        "TotalVolumen": 397
+      },
+      {
+        "Oficina": "PD-EPS Disfarma",
+        "TotalVolumen": 393
+      },
+      {
+        "Oficina": "PD-Jamundí​",
+        "TotalVolumen": 349
+      },
+      {
+        "Oficina": "PD-Tuluá 2",
+        "TotalVolumen": 341
+      },
+      {
+        "Oficina": "PD-Cartagena 3",
+        "TotalVolumen": 337
+      },
+      {
+        "Oficina": "PD-Honda",
+        "TotalVolumen": 327
+      },
+      {
+        "Oficina": "PD-Sincelejo 2 ",
+        "TotalVolumen": 292
+      },
+      {
+        "Oficina": "PD-Yumbo",
+        "TotalVolumen": 287
+      },
+      {
+        "Oficina": "PD-Cali 4",
+        "TotalVolumen": 277
+      },
+      {
+        "Oficina": "PD-Cartagena 2",
+        "TotalVolumen": 273
+      },
+      {
+        "Oficina": "PD-San Gil 2​",
+        "TotalVolumen": 271
+      },
+      {
+        "Oficina": "PD-Cali 6",
+        "TotalVolumen": 244
+      },
+      {
+        "Oficina": "PD-Montería 1",
+        "TotalVolumen": 237
+      },
+      {
+        "Oficina": "PD-Candelaria",
+        "TotalVolumen": 237
+      },
+      {
+        "Oficina": "PD-Montería 2",
+        "TotalVolumen": 224
+      },
+      {
+        "Oficina": "PD-Buenaventura",
+        "TotalVolumen": 210
+      },
+      {
+        "Oficina": "PD-Chaparral",
+        "TotalVolumen": 199
+      },
+      {
+        "Oficina": "PD-Pradera",
+        "TotalVolumen": 183
+      },
+      {
+        "Oficina": "PD-Espinal",
+        "TotalVolumen": 136
+      },
+      {
+        "Oficina": "PD-Soacha 3",
+        "TotalVolumen": 94
+      },
+      {
+        "Oficina": "PD-Cartagena 4",
+        "TotalVolumen": 71
+      },
+      {
+        "Oficina": "PD-Palmira 2",
+        "TotalVolumen": 69
+      }
+    ],
+    "Top_Unidades_Abandonos": [
+      {
+        "Oficina": "PD-Floridablanca",
+        "TotalAbandonos": 77
+      },
+      {
+        "Oficina": "PD-Montería 3​",
+        "TotalAbandonos": 37
+      },
+      {
+        "Oficina": "PD-Sincelejo​",
+        "TotalAbandonos": 31
+      },
+      {
+        "Oficina": "PD-Honda",
+        "TotalAbandonos": 25
+      },
+      {
+        "Oficina": "PD-Sincelejo 2 ",
+        "TotalAbandonos": 22
+      },
+      {
+        "Oficina": "PD-Pradera",
+        "TotalAbandonos": 17
+      },
+      {
+        "Oficina": "PD-Montería 2",
+        "TotalAbandonos": 16
+      },
+      {
+        "Oficina": "PD-San Gil 2​",
+        "TotalAbandonos": 14
+      },
+      {
+        "Oficina": "PD-EPS Disfarma",
+        "TotalAbandonos": 11
+      },
+      {
+        "Oficina": "PD-Montería 1",
+        "TotalAbandonos": 10
+      },
+      {
+        "Oficina": "PD-Jamundí​",
+        "TotalAbandonos": 9
+      },
+      {
+        "Oficina": "PD-Palmira 2",
+        "TotalAbandonos": 7
+      },
+      {
+        "Oficina": "PD-Yumbo",
+        "TotalAbandonos": 5
+      },
+      {
+        "Oficina": "PD-Barrancabermeja",
+        "TotalAbandonos": 3
+      },
+      {
+        "Oficina": "PD-Chaparral",
+        "TotalAbandonos": 3
+      },
+      {
+        "Oficina": "PD-Cali 5",
+        "TotalAbandonos": 3
+      },
+      {
+        "Oficina": "PD-Palmira 1",
+        "TotalAbandonos": 2
+      },
+      {
+        "Oficina": "PD-Candelaria",
+        "TotalAbandonos": 1
+      },
+      {
+        "Oficina": "PD-Valledupar",
+        "TotalAbandonos": 1
+      },
+      {
+        "Oficina": "PD-Ibagué evento 2",
+        "TotalAbandonos": 1
+      },
+      {
+        "Oficina": "PD-Tuluá 2",
+        "TotalAbandonos": 1
+      },
+      {
+        "Oficina": "PD-Cartagena 3",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Cali 4",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Cartagena 2",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Cartagena 4",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Cali 6",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Espinal",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Buenaventura",
+        "TotalAbandonos": 0
+      },
+      {
+        "Oficina": "PD-Soacha 3",
+        "TotalAbandonos": 0
+      }
+    ],
+    "Top_Servicios_Espera": [
+      {
+        "Servicio": "Poliformula",
+        "AvgEspera": 2530.8407079646013,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Servicio": "Preferencial",
+        "AvgEspera": 1920.1983914209081,
+        "WaitingTimeCritical": 960,
+        "WaitingTimeWarning": 600,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Prioritarios",
+        "AvgEspera": 1793.238410596026,
+        "WaitingTimeCritical": 1200,
+        "WaitingTimeWarning": 780,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "General",
+        "AvgEspera": 1694.7669841269847,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Turno Rápido",
+        "AvgEspera": 1233.7687420584502,
+        "WaitingTimeCritical": 1080,
+        "WaitingTimeWarning": 720,
+        "ServiceTimeCritical": 900,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Plan Premium",
+        "AvgEspera": 1040.3125,
+        "WaitingTimeCritical": 720,
+        "WaitingTimeWarning": 480,
+        "ServiceTimeCritical": 360,
+        "ServiceTimeWarning": 240
+      },
+      {
+        "Servicio": "Pendientes",
+        "AvgEspera": 879.1502890173415,
+        "WaitingTimeCritical": 900,
+        "WaitingTimeWarning": 540,
+        "ServiceTimeCritical": 900,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Devoluciones",
+        "AvgEspera": 209.969696969697,
+        "WaitingTimeCritical": 300,
+        "WaitingTimeWarning": 0,
+        "ServiceTimeCritical": 0,
+        "ServiceTimeWarning": 0
+      }
+    ],
+    "Top_Servicios_Servicio": [
+      {
+        "Servicio": "Poliformula",
+        "AvgServicio": 737.441489361702,
+        "WaitingTimeCritical": 3240,
+        "WaitingTimeWarning": 2160,
+        "ServiceTimeCritical": 1260,
+        "ServiceTimeWarning": 1200
+      },
+      {
+        "Servicio": "Prioritarios",
+        "AvgServicio": 585.1518987341774,
+        "WaitingTimeCritical": 1200,
+        "WaitingTimeWarning": 780,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Preferencial",
+        "AvgServicio": 487.55039227519626,
+        "WaitingTimeCritical": 960,
+        "WaitingTimeWarning": 600,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "General",
+        "AvgServicio": 481.23510585918274,
+        "WaitingTimeCritical": 1440,
+        "WaitingTimeWarning": 960,
+        "ServiceTimeCritical": 660,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Plan Premium",
+        "AvgServicio": 367.63157894736844,
+        "WaitingTimeCritical": 720,
+        "WaitingTimeWarning": 480,
+        "ServiceTimeCritical": 360,
+        "ServiceTimeWarning": 240
+      },
+      {
+        "Servicio": "Devoluciones",
+        "AvgServicio": 325.1379310344827,
+        "WaitingTimeCritical": 300,
+        "WaitingTimeWarning": 0,
+        "ServiceTimeCritical": 0,
+        "ServiceTimeWarning": 0
+      },
+      {
+        "Servicio": "Turno Rápido",
+        "AvgServicio": 241.36584158415852,
+        "WaitingTimeCritical": 1080,
+        "WaitingTimeWarning": 720,
+        "ServiceTimeCritical": 900,
+        "ServiceTimeWarning": 600
+      },
+      {
+        "Servicio": "Pendientes",
+        "AvgServicio": 214.0532994923858,
+        "WaitingTimeCritical": 900,
+        "WaitingTimeWarning": 540,
+        "ServiceTimeCritical": 900,
+        "ServiceTimeWarning": 600
+      }
+    ],
+    "Top_Servicios_Volumen": [
+      {
+        "Servicio": "General",
+        "TotalVolumen": 4661
+      },
+      {
+        "Servicio": "Turno Rápido",
+        "TotalVolumen": 2260
+      },
+      {
+        "Servicio": "Preferencial",
+        "TotalVolumen": 2035
+      },
+      {
+        "Servicio": "Pendientes",
+        "TotalVolumen": 441
+      },
+      {
+        "Servicio": "Prioritarios",
+        "TotalVolumen": 294
+      },
+      {
+        "Servicio": "Poliformula",
+        "TotalVolumen": 242
+      },
+      {
+        "Servicio": "Devoluciones",
+        "TotalVolumen": 44
+      },
+      {
+        "Servicio": "Plan Premium",
+        "TotalVolumen": 23
+      }
+    ],
+    "Top_Servicios_Abandonos": [
+      {
+        "Servicio": "General",
+        "TotalAbandonos": 116
+      },
+      {
+        "Servicio": "Turno Rápido",
+        "TotalAbandonos": 79
+      },
+      {
+        "Servicio": "Preferencial",
+        "TotalAbandonos": 53
+      },
+      {
+        "Servicio": "Prioritarios",
+        "TotalAbandonos": 18
+      },
+      {
+        "Servicio": "Pendientes",
+        "TotalAbandonos": 16
+      },
+      {
+        "Servicio": "Poliformula",
+        "TotalAbandonos": 7
+      },
+      {
+        "Servicio": "Devoluciones",
+        "TotalAbandonos": 7
+      },
+      {
+        "Servicio": "Plan Premium",
+        "TotalAbandonos": 0
+      }
+    ]
+  }
+}

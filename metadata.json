@@ -1,0 +1,5 @@
+{
+  "name": "Simulador de Capacidad de Servicio",
+  "description": "Una aplicación web interactiva para simular y analizar la capacidad de los centros de servicio basándose en datos operativos. Los usuarios pueden cargar archivos de Excel, visualizar métricas clave, ajustar parámetros en tiempo real para ver su impacto y generar análisis impulsados por IA para identificar cuellos de botella y oportunidades de optimización.",
+  "requestFramePermissions": []
+}

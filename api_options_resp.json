@@ -1,0 +1,43 @@
+{
+  "units": [
+    "PD-Barrancabermeja",
+    "PD-Buenaventura",
+    "PD-Cali 4",
+    "PD-Cali 5",
+    "PD-Cali 6",
+    "PD-Candelaria",
+    "PD-Cartagena 2",
+    "PD-Cartagena 3",
+    "PD-Cartagena 4",
+    "PD-Chaparral",
+    "PD-EPS Disfarma",
+    "PD-Espinal",
+    "PD-Floridablanca",
+    "PD-Honda",
+    "PD-Ibagué evento 2",
+    "PD-Jamundí​",
+    "PD-Montería 1",
+    "PD-Montería 2",
+    "PD-Montería 3​",
+    "PD-Palmira 1",
+    "PD-Palmira 2",
+    "PD-Pradera",
+    "PD-San Gil 2​",
+    "PD-Sincelejo 2 ",
+    "PD-Sincelejo​",
+    "PD-Soacha 3",
+    "PD-Tuluá 2",
+    "PD-Valledupar",
+    "PD-Yumbo"
+  ],
+  "services": [
+    "Devoluciones",
+    "General",
+    "Pendientes",
+    "Plan Premium",
+    "Poliformula",
+    "Preferencial",
+    "Prioritarios",
+    "Turno Rápido"
+  ]
+}

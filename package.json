@@ -1,0 +1,32 @@
+{
+  "name": "simulador-de-capacidad-de-servicio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.9.2",
+    "@google/genai": "^1.27.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.28",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.6.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
