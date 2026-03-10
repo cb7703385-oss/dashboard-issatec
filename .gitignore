@@ -26,6 +26,8 @@ dist-ssr
 # Credenciales y variables de entorno (MUY IMPORTANTE)
 .env
 bigquery_credentials.json
+actualizador_automatico.py
+*.py
 
 # Scripts de diagnóstico auto-generados que no deben subirse
 *.mjs
