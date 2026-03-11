@@ -1455,7 +1455,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                             }}
                             disabled={isLoading}
                             className="px-4 py-2 text-white rounded-xl text-sm 2xl:text-base font-bold transition-all shadow-lg disabled:opacity-50"
-                            style={{ background: isLoading ? '#93c5fd' : '#1B6DB5', boxShadow: '0 4px 14px rgba(27,109,181,0.35)' }}
+                            style={{ background: isLoading ? '#93c5fd' : '#2D75AA', boxShadow: '0 4px 14px rgba(45,117,170,0.35)' }}
                         >
                             {isLoading ? 'Cargando...' : 'Actualizar'}
                         </button>
@@ -1467,9 +1467,9 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                     onClick={() => setShowUserMenu(prev => !prev)}
                                     style={{
                                         display: 'flex', alignItems: 'center', gap: '8px',
-                                        background: '#1B6DB5', border: 'none', borderRadius: '12px',
+                                        background: '#2D75AA', border: 'none', borderRadius: '12px',
                                         padding: '6px 12px 6px 6px', cursor: 'pointer',
-                                        boxShadow: '0 2px 8px rgba(27,109,181,0.30)',
+                                        boxShadow: '0 2px 8px rgba(45,117,170,0.30)',
                                     }}
                                 >
                                     <div style={{

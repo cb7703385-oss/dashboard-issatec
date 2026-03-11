@@ -50,7 +50,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 h-[100dvh] flex flex-col font-sans overflow-hidden">
+    <div className="bg-[#f0f5f9] h-[100dvh] flex flex-col font-sans overflow-hidden">
       <LiveData
         user={user}
         onLogout={handleLogout}
