@@ -1,3 +1,4 @@
+// Sincronización final: Corrección de tiempos y etiquetas verificada en local - 2026-03-16
 import express from 'express';
 import { BigQuery } from '@google-cloud/bigquery';
 import cors from 'cors';
