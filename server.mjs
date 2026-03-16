@@ -34,7 +34,7 @@ const bigquery = new BigQuery({
   projectId: 'master-reactor-476520-p0',
 });
 
-app.get('/api/query/auto', async (req, res) => {
+app.get('/api/query/auto', requireAuth(), async (req, res) => {
   const { date } = req.query;
 
   // Filtro de fecha: si se proporciona fecha específica, sino últimos 7 días
@@ -143,7 +143,7 @@ app.get('/api/query/auto', async (req, res) => {
   }
 });
 
-app.get('/api/query/services', async (req, res) => {
+app.get('/api/query/services', requireAuth(), async (req, res) => {
   const { date, hour, unitName } = req.query;
   const hourInt = parseInt(hour.substring(0, 2), 10);
   const startTime = `${date} ${hour.substring(0, 2)}:00:00`;
@@ -204,7 +204,7 @@ app.get('/api/query/services', async (req, res) => {
   }
 });
 
-app.get('/api/agents-detail', async (req, res) => {
+app.get('/api/agents-detail', requireAuth(), async (req, res) => {
   const { date, hour, unitName, serviceName } = req.query;
 
   if (!date || !hour || !unitName) {
@@ -361,7 +361,7 @@ app.get('/api/agents-detail', async (req, res) => {
 });
 
 // Drill-down: list individual agents for a specific unit from live table
-app.get('/api/agents-by-unit', async (req, res) => {
+app.get('/api/agents-by-unit', requireAuth(), async (req, res) => {
   const { unitName, agentType } = req.query;
   if (!unitName) {
     return res.status(400).json({ error: 'Missing unitName parameter' });
@@ -403,7 +403,7 @@ app.get('/api/agents-by-unit', async (req, res) => {
 });
 
 // All active agents for AI context
-app.get('/api/all-agents', async (req, res) => {
+app.get('/api/all-agents', requireAuth(), async (req, res) => {
   const query = `
     SELECT
       a.FullName,
@@ -428,7 +428,7 @@ app.get('/api/all-agents', async (req, res) => {
 });
 
 // Individual tickets currently waiting in a specific unit
-app.get('/api/waiting-tickets', async (req, res) => {
+app.get('/api/waiting-tickets', requireAuth(), async (req, res) => {
   const { unitName, date } = req.query;
   if (!unitName) return res.status(400).json({ error: 'Missing unitName' });
   const targetDate = date || new Date().toISOString().split('T')[0];
@@ -481,7 +481,7 @@ app.get('/api/waiting-tickets', async (req, res) => {
 });
 
 // Individual tickets currently in service in a specific unit
-app.get('/api/service-tickets', async (req, res) => {
+app.get('/api/service-tickets', requireAuth(), async (req, res) => {
   const { unitName, date } = req.query;
   if (!unitName) return res.status(400).json({ error: 'Missing unitName' });
   const targetDate = date || new Date().toISOString().split('T')[0];
@@ -532,7 +532,7 @@ app.get('/api/service-tickets', async (req, res) => {
   }
 });
 
-app.get('/api/query/global-stats', async (req, res) => {
+app.get('/api/query/global-stats', requireAuth(), async (req, res) => {
   const { date, unitName, serviceName } = req.query;
   const query = `
     WITH StatsData AS (
@@ -585,7 +585,7 @@ app.get('/api/query/global-stats', async (req, res) => {
   }
 });
 
-app.get('/api/daily-analysis', async (req, res) => {
+app.get('/api/daily-analysis', requireAuth(), async (req, res) => {
   const filePath = 'C:\\Users\\cburgos\\OneDrive - Tveez Colombia S.A\\Documentos\\BigData\\Global\\Analisis por dia todos los clientes\\ReportesDiarios.xlsx';
 
   try {
@@ -854,7 +854,7 @@ app.get('/api/daily-analysis', async (req, res) => {
 });
 
 // Endpoint para obtener datos de tendencia de 30 días para un cliente específico
-app.get('/api/daily-analysis/trend/:clientName', async (req, res) => {
+app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res) => {
   try {
     const { clientName } = req.params;
     const filePath = 'C:\\Users\\cburgos\\OneDrive - Tveez Colombia S.A\\Documentos\\BigData\\Global\\Analisis por dia todos los clientes\\ReportesDiarios.xlsx';
@@ -987,7 +987,7 @@ app.get('/api/daily-analysis/trend/:clientName', async (req, res) => {
 });
 
 // Endpoint para obtener datos de tendencia de 30 días para una UNIDAD específica de un cliente
-app.get('/api/daily-analysis/trend/:clientName/:unitName', async (req, res) => {
+app.get('/api/daily-analysis/trend/:clientName/:unitName', requireAuth(), async (req, res) => {
   try {
     const { clientName, unitName } = req.params;
     const filePath = 'C:\\Users\\cburgos\\OneDrive - Tveez Colombia S.A\\Documentos\\BigData\\Global\\Analisis por dia todos los clientes\\ReportesDiarios.xlsx';
@@ -1124,7 +1124,7 @@ app.get('/api/daily-analysis/trend/:clientName/:unitName', async (req, res) => {
   }
 });
 
-app.get('/api/projections', async (req, res) => {
+app.get('/api/projections', requireAuth(), async (req, res) => {
   try {
     const { date, dateFrom, dateTo, unit, service } = req.query;
     let whereClauses = [];
@@ -1155,7 +1155,7 @@ app.get('/api/projections', async (req, res) => {
   }
 });
 
-app.get('/api/live-data', async (req, res) => {
+app.get('/api/live-data', requireAuth(), async (req, res) => {
   try {
     const { unit, service, granularity = 'hour', date } = req.query;
     const targetDate = date || new Date().toISOString().split('T')[0];
@@ -1574,7 +1574,7 @@ app.get('/api/live-data', async (req, res) => {
 });
 
 // Endpoint to get filter options for live data (units and services)
-app.get('/api/live-data/options', async (req, res) => {
+app.get('/api/live-data/options', requireAuth(), async (req, res) => {
   try {
     const { date } = req.query;
     const targetDate = date || new Date().toISOString().split('T')[0];
@@ -1727,10 +1727,44 @@ function requireAuth(requiredRole) {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       req.user = decoded;
+      
       if (requiredRole && decoded.rol !== requiredRole) {
         return res.status(403).json({ error: 'No tienes permisos para esta acción' });
       }
-      next();
+
+      // Validación de Sesión Única (Kill Session)
+      // Consultamos el session_id actual en BigQuery
+      bigquery.query({
+        query: `SELECT session_id FROM \`${USERS_TABLE}\` WHERE id = @id LIMIT 1`,
+        params: { id: decoded.userId }
+      }).then(([rows]) => {
+        const logMsg = `[${new Date().toISOString()}] User: ${decoded.username} | TokenID: ${decoded.sessionId} | DBID: ${rows[0]?.session_id}\n`;
+        fs.appendFileSync('session_debug.log', logMsg);
+
+        if (rows.length > 0) {
+          const currentSessionId = rows[0].session_id;
+          if (currentSessionId && (!decoded.sessionId || decoded.sessionId !== currentSessionId)) {
+            const kickMsg = `[${new Date().toISOString()}] !!! KICKING USER: ${decoded.username}\n`;
+            fs.appendFileSync('session_debug.log', kickMsg);
+            return res.status(401).json({ 
+              error: 'SESSION_INVALIDATED', 
+              message: 'Tu sesión ha sido iniciada en otro dispositivo o es antigua. Por favor, ingresa de nuevo.' 
+            });
+          }
+        }
+        
+        // Si todo está bien, actualizamos actividad y continuamos
+        bigquery.query({
+          query: `UPDATE \`${USERS_TABLE}\` SET last_active = CURRENT_TIMESTAMP() WHERE id = @id`,
+          params: { id: decoded.userId }
+        }).catch(err => console.error('Error actualizando actividad:', err.message));
+
+        next();
+      }).catch(err => {
+        console.error('Error validando sesión:', err);
+        next(); // En caso de error de BQ, permitimos continuar por ahora para no bloquear
+      });
+
     } catch (err) {
       return res.status(401).json({ error: 'Token inválido o expirado' });
     }
@@ -1748,7 +1782,9 @@ async function initUsersTable() {
         nombre STRING,
         rol STRING NOT NULL,
         activo BOOL NOT NULL,
-        created_at TIMESTAMP NOT NULL
+        created_at TIMESTAMP NOT NULL,
+        last_active TIMESTAMP,
+        session_id STRING
       )
     `;
     await bigquery.query({ query: createTableSQL });
@@ -1773,18 +1809,44 @@ async function initUsersTable() {
 
 // POST /api/auth/login
 app.post('/api/auth/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, force } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
   try {
     const [rows] = await bigquery.query({
-      query: `SELECT * FROM \`${USERS_TABLE}\` WHERE username = @username AND activo = TRUE LIMIT 1`,
+      query: `SELECT *, (last_active > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 5 MINUTE)) as is_online FROM \`${USERS_TABLE}\` WHERE username = @username AND activo = TRUE LIMIT 1`,
       params: { username }
     });
+    
     if (rows.length === 0) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     const user = rows[0];
+    
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
-    const token = jwt.sign({ userId: user.id, username: user.username, rol: user.rol, nombre: user.nombre }, JWT_SECRET, { expiresIn: '8h' });
+
+    // Verificar si ya hay una sesión activa y no se ha forzado el cierre
+    if (user.is_online && user.session_id && !force) {
+      return res.status(409).json({ 
+        error: 'ALREADY_LOGGED_IN', 
+        message: 'Ya tienes una sesión activa en otro dispositivo. ¿Deseas cerrarla e ingresar aquí?' 
+      });
+    }
+
+    const newSessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Actualizar última actividad y session_id
+    await bigquery.query({
+      query: `UPDATE \`${USERS_TABLE}\` SET last_active = CURRENT_TIMESTAMP(), session_id = @sessionId WHERE id = @id`,
+      params: { id: user.id, sessionId: newSessionId }
+    });
+
+    const token = jwt.sign({ 
+      userId: user.id, 
+      username: user.username, 
+      rol: user.rol, 
+      nombre: user.nombre,
+      sessionId: newSessionId 
+    }, JWT_SECRET, { expiresIn: '8h' });
+
     res.json({ token, user: { userId: user.id, username: user.username, rol: user.rol, nombre: user.nombre } });
   } catch (err) {
     console.error('Error in /api/auth/login:', err);
@@ -1800,7 +1862,15 @@ app.get('/api/auth/verify', requireAuth(), (req, res) => {
 // GET /api/admin/users — list all users (admin only)
 app.get('/api/admin/users', requireAuth('admin'), async (req, res) => {
   try {
-    const [rows] = await bigquery.query({ query: `SELECT id, username, nombre, rol, activo, FORMAT_TIMESTAMP('%Y-%m-%d %H:%M', created_at) as created_at FROM \`${USERS_TABLE}\` ORDER BY created_at DESC` });
+    const [rows] = await bigquery.query({ 
+      query: `
+        SELECT 
+          id, username, nombre, rol, activo, 
+          FORMAT_TIMESTAMP('%Y-%m-%d %H:%M', created_at) as created_at,
+          (last_active > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 MINUTE)) as is_online
+        FROM \`${USERS_TABLE}\` 
+        ORDER BY created_at DESC` 
+    });
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

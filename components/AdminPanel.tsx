@@ -7,6 +7,7 @@ interface User {
   rol: string;
   activo: boolean;
   created_at: string;
+  is_online?: boolean;
 }
 
 interface AdminPanelProps {
@@ -40,8 +41,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onClose }) 
     try {
       const res = await fetch('/api/admin/users', { headers: authHeaders() });
       const data = await res.json();
-      if (!res.ok) setError(data.error || 'Error cargando usuarios');
-      else setUsers(data);
+      if (!res.ok) {
+        if (data.error === 'SESSION_INVALIDATED') {
+          window.location.reload();
+          return;
+        }
+        setError(data.error || 'Error cargando usuarios');
+      } else setUsers(data);
     } catch { setError('Error de conexión'); }
     finally { setLoading(false); }
   };
@@ -140,7 +146,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onClose }) 
                       <span style={{ padding: '2px 10px', borderRadius: '20px', fontWeight: 700, fontSize: '11px', background: u.rol === 'admin' ? '#eff6ff' : '#f0fdf4', color: u.rol === 'admin' ? '#1d4ed8' : '#15803d' }}>{u.rol}</span>
                     </td>
                     <td style={{ padding: '10px' }}>
-                      <span style={{ padding: '2px 10px', borderRadius: '20px', fontWeight: 700, fontSize: '11px', background: u.activo ? '#f0fdf4' : '#fff1f0', color: u.activo ? '#15803d' : '#dc2626' }}>{u.activo ? 'Activo' : 'Inactivo'}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ padding: '2px 10px', borderRadius: '20px', fontWeight: 700, fontSize: '11px', background: u.activo ? '#f0fdf4' : '#fff1f0', color: u.activo ? '#15803d' : '#dc2626', textAlign: 'center' }}>
+                          {u.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: '8px' }}>
+                          <div style={{ width: '6px', height: '6px', borderRadius: 'full', background: u.is_online ? '#22c55e' : '#94a3b8' }}></div>
+                          <span style={{ fontSize: '10px', color: u.is_online ? '#15803d' : '#64748b', fontWeight: 600 }}>
+                            {u.is_online ? 'Online' : 'Offline'}
+                          </span>
+                        </div>
+                      </div>
                     </td>
                     <td style={{ padding: '10px', color: '#94a3b8', fontSize: '11px' }}>{u.created_at}</td>
                     <td style={{ padding: '10px', display: 'flex', gap: '6px' }}>

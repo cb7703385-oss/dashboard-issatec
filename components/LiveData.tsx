@@ -19,6 +19,12 @@ interface LiveDataProps {
     onLogout?: () => void;
     onOpenAdmin?: () => void;
 }
+const getToken = () => localStorage.getItem('auth_token') || '';
+
+const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`,
+});
 
 export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin }) => {
     const [hourData, setHourData] = useState<LiveDataItem[]>([]);
@@ -70,10 +76,15 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             const dateParam = window.location.search.includes('date=')
                 ? new URLSearchParams(window.location.search).get('date')
                 : new Date().toISOString().split('T')[0];
-            const resp = await fetch(`/api/waiting-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`);
+            const resp = await fetch(`/api/waiting-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`, { headers: authHeaders() });
             const data = await resp.json();
+            if (resp.status === 401 && data.error === 'SESSION_INVALIDATED') {
+                onLogout?.();
+                return;
+            }
             setWaitingDrillData(Array.isArray(data) ? data : []);
-        } catch {
+        } catch (err) {
+            console.error('Error fetching waiting tickets:', err);
             setWaitingDrillData([]);
         } finally {
             setWaitingDrillLoading(false);
@@ -96,10 +107,15 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             const dateParam = window.location.search.includes('date=')
                 ? new URLSearchParams(window.location.search).get('date')
                 : new Date().toISOString().split('T')[0];
-            const resp = await fetch(`/api/service-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`);
+            const resp = await fetch(`/api/service-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`, { headers: authHeaders() });
             const data = await resp.json();
+            if (resp.status === 401 && data.error === 'SESSION_INVALIDATED') {
+                onLogout?.();
+                return;
+            }
             setServiceDrillData(Array.isArray(data) ? data : []);
-        } catch {
+        } catch (err) {
+            console.error('Error fetching service tickets:', err);
             setServiceDrillData([]);
         } finally {
             setServiceDrillLoading(false);
@@ -148,10 +164,15 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
         setAgentDrillData([]);
         setAgentDrillLoading(true);
         try {
-            const resp = await fetch(`/api/agents-by-unit?unitName=${encodeURIComponent(unitName)}&agentType=${encodeURIComponent(agentType)}`);
+            const resp = await fetch(`/api/agents-by-unit?unitName=${encodeURIComponent(unitName)}&agentType=${encodeURIComponent(agentType)}`, { headers: authHeaders() });
             const data = await resp.json();
+            if (resp.status === 401 && data.error === 'SESSION_INVALIDATED') {
+                onLogout?.();
+                return;
+            }
             setAgentDrillData(Array.isArray(data) ? data : []);
-        } catch {
+        } catch (err) {
+            console.error('Error fetching agent drill data:', err);
             setAgentDrillData([]);
         } finally {
             setAgentDrillLoading(false);
@@ -171,8 +192,14 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
     // Load all agents when chat is opened (lazy, only once)
     useEffect(() => {
         if (isChatOpen && allAgentsData.length === 0) {
-            fetch('/api/all-agents')
-                .then(r => r.json())
+            fetch('/api/all-agents', { headers: authHeaders() })
+                .then(r => {
+                    if (r.status === 401) {
+                        onLogout?.();
+                        throw new Error('SESSION_INVALIDATED');
+                    }
+                    return r.json();
+                })
                 .then(data => setAllAgentsData(Array.isArray(data) ? data : []))
                 .catch(() => { });
         }
@@ -226,13 +253,18 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
 
             const response = await fetch('/api/ai-chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders(),
                 body: JSON.stringify({
                     message: messageToSend,
                     history: currentMessages,
                     context
                 })
             });
+
+            if (response.status === 401) {
+                onLogout?.();
+                return;
+            }
 
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
@@ -313,10 +345,14 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             if (selectedSede) params.append('unit', selectedSede);
             if (selectedService) params.append('service', selectedService);
 
-            const response = await fetch(`/api/live-data?${params.toString()}`);
+            const response = await fetch(`/api/live-data?${params.toString()}`, { headers: authHeaders() });
             const json = await response.json();
 
             if (!response.ok) {
+                if (json.error === 'SESSION_INVALIDATED' || response.status === 401) {
+                    onLogout?.();
+                    return;
+                }
                 console.error('API Error:', json);
                 throw new Error(json.error || 'Error al cargar datos en vivo');
             }
@@ -351,8 +387,12 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const response = await fetch(`/api/live-data/options?date=${selectedDate}`);
+                const response = await fetch(`/api/live-data/options?date=${selectedDate}`, { headers: authHeaders() });
                 const data = await response.json();
+                if (response.status === 401 && data.error === 'SESSION_INVALIDATED') {
+                    onLogout?.();
+                    return;
+                }
                 setSedes(data.units || []);
                 setServicios(data.services || []);
             } catch (err) {
@@ -941,8 +981,8 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
 
         return (
             <div className="flex gap-3 text-xs text-white/90 mt-2 justify-center">
-                <span className="font-semibold">C: {critical} ({criticalPct}%)</span>
-                <span className="font-semibold">A: {warning} ({warningPct}%)</span>
+                <span className="font-semibold">Crit. {critical} ({criticalPct}%)</span>
+                <span className="font-semibold">Adv. {warning} ({warningPct}%)</span>
             </div>
         );
     };

@@ -10,18 +10,30 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent, force = false) => {
+    if (e) e.preventDefault();
     setError('');
     setLoading(true);
+    setShowSessionModal(false);
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({ username: username.trim(), password, force }),
       });
       const data = await res.json();
+      
+      if (res.status === 409 && data.error === 'ALREADY_LOGGED_IN') {
+        setSessionMessage(data.message);
+        setShowSessionModal(true);
+        setLoading(false);
+        return;
+      }
+
       if (!res.ok) {
         setError(data.error || 'Error al iniciar sesión');
       } else {
@@ -32,7 +44,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     } catch {
       setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
     } finally {
-      setLoading(false);
+      if (!force) setLoading(false);
     }
   };
 
@@ -253,7 +265,85 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           </form>
         </div>
 
+        {/* MODAL DE SESIÓN ACTIVA PERSONALIZADO */}
+        {showSessionModal && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            backgroundColor: 'rgba(5, 20, 40, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            animation: 'fadeIn 0.3s ease'
+          }}>
+            <div style={{
+              background: 'rgba(20, 80, 140, 0.9)',
+              border: '2px solid rgba(0, 220, 255, 1)',
+              borderRadius: '16px',
+              padding: '28px',
+              maxWidth: '400px',
+              width: '100%',
+              boxShadow: '0 0 50px rgba(0, 220, 255, 0.4)',
+              textAlign: 'center',
+              animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px' }}>⚠️</div>
+              <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 800, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Sesión Activa
+              </h3>
+              <p style={{ color: '#c8e8ff', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
+                {sessionMessage}
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  onClick={() => handleSubmit(undefined, true)}
+                  style={{
+                    padding: '12px',
+                    background: 'rgba(0, 220, 255, 0.8)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    boxShadow: '0 0 15px rgba(0, 220, 255, 0.5)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0, 220, 255, 1)'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0, 220, 255, 0.8)'}
+                >
+                  SÍ, CERRAR OTRA Y ENTRAR
+                </button>
+                <button
+                  onClick={() => setShowSessionModal(false)}
+                  style={{
+                    padding: '10px',
+                    background: 'transparent',
+                    color: '#c8e8ff',
+                    border: '1px solid rgba(200, 232, 255, 0.3)',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  NO, REGRESAR
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <style>{`
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
           /* Placeholder — texto oscuro (igual que en el mockup) */
