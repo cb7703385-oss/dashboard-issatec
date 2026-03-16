@@ -21,6 +21,10 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos de la carpeta 'dist' (generada por npm run build)
+const distPath = path.join(__dirname, 'dist');
+app.use(express.static(distPath));
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 
@@ -456,6 +460,7 @@ app.get('/api/waiting-tickets', async (req, res) => {
       WaitingTimeCritical,
       FORMAT_DATETIME('%Y-%m-%dT%H:%M:%S', DATETIME(WaitStartDate)) AS StartDate,
       DATETIME_DIFF(CURRENT_DATETIME('America/Bogota'), DATETIME(WaitStartDate), SECOND) AS SecondsWaiting
+      -- Se mantiene DATETIME_DIFF por ahora para StartDate, pero usaremos TIMESTAMP para los cálculos de Max
     FROM RankedRows
     WHERE rn_last = 1
       AND EntityStatus IN (3, 11)
@@ -494,7 +499,7 @@ app.get('/api/service-tickets', async (req, res) => {
         ServiceTimeWarning,
         ServiceTimeCritical,
         ROW_NUMBER() OVER (PARTITION BY ProcessId ORDER BY StartDate DESC) AS rn_last,
-        MIN(IF(EntityStatus IN (4,5), StartDate, NULL)) OVER (PARTITION BY ProcessId) AS ServiceStartDate
+        MIN(IF(EntityStatus = 6, StartDate, NULL)) OVER (PARTITION BY ProcessId) AS ServiceStartDate
       FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
       WHERE DATE(StartDate) = DATE('${targetDate}')
         AND EntityStatus NOT IN (40, 41)
@@ -510,7 +515,7 @@ app.get('/api/service-tickets', async (req, res) => {
       DATETIME_DIFF(CURRENT_DATETIME('America/Bogota'), DATETIME(ServiceStartDate), SECOND) AS SecondsServing
     FROM RankedRows
     WHERE rn_last = 1
-      AND EntityStatus IN (4, 5)
+      AND EntityStatus = 6
     ORDER BY ServiceStartDate ASC
   `;
 
@@ -1857,6 +1862,11 @@ app.delete('/api/admin/users/:id', requireAuth('admin'), async (req, res) => {
   }
 });
 // ==================== END AUTH SYSTEM ====================
+
+// Ruta comodín para manejar el routing de React (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
 
 app.listen(port, async () => {
   console.log(`Backend server running at http://localhost:${port}`);

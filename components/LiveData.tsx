@@ -440,7 +440,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                             margin: '4px 0'
                         }}>
                             {entry.name}: {
-                                entry.name.includes('Tiempo') || entry.name.includes('espera') || entry.name.includes('servicio')
+                                entry.name.includes('Tiempo') || entry.name.includes('espera') || entry.name.includes('atención') || entry.name.includes('servicio')
                                     ? formatSeconds(value)
                                     : value
                             }
@@ -1035,7 +1035,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                 ? <div
                                     className="shrink-0 w-[60px] 2xl:w-[75px] text-right cursor-pointer hover:text-blue-500 select-none"
                                     onClick={() => handleSortClick('servicio')}
-                                >Servicio{sortArrow('servicio')}</div>
+                                >Atencion{sortArrow('servicio')}</div>
                                 : <div className="shrink-0 w-[60px] 2xl:w-[75px] text-right">Promesa</div>
                         )}
                         <div className="shrink-0 w-[50px] 2xl:w-[65px] text-right px-1">% Obj</div>
@@ -1189,7 +1189,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                     {activeTab === 'units' ? (
                         <div className="space-y-4">
                             <RankingSection
-                                title="⏱️ Mayor Tiempo de Espera y Servicio"
+                                title="⏱️ Mayor Tiempo de Espera y Atencion"
                                 items={globals.Top_Unidades_Espera || []}
                                 type="time"
                                 isExpanded={!!expandedSections['u_wait']}
@@ -1221,7 +1221,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                 onToggle={() => toggleSection('s_wait')}
                             />
                             <RankingSection
-                                title="🔧 Mayor Tiempo de Servicio"
+                                title="🔧 Mayor Tiempo de Atención"
                                 items={globals.Top_Servicios_Servicio || []}
                                 type="time"
                                 isExpanded={!!expandedSections['s_service']}
@@ -1306,7 +1306,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             'Volumen por Minuto': 'volumen',
             'Abandonos por Minuto': 'abandonos',
             'Tiempo prom de espera': 'espera',
-            'Tiempo de servicio promedio': 'servicio'
+            'Tiempo de atención promedio': 'servicio'
         };
 
         const key = lineMap[dataKey];
@@ -1325,7 +1325,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             'Volumen por Minuto': 'volumen',
             'Abandonos por Minuto': 'abandonos',
             'Tiempo prom de espera': 'espera',
-            'Tiempo de servicio promedio': 'servicio'
+            'Tiempo de atención promedio': 'servicio'
         };
         const key = lineMap[value];
         const isVisible = key ? visibleLines[key] : true;
@@ -1669,7 +1669,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                             onClick={() => setShowMaxServiceModal(true)}
                             title="Ver máximo tiempo de servicio por unidad"
                         >
-                            <span className="text-[9px] lg:text-[9px] 2xl:text-[13px] font-black text-[#727D84] tracking-tight 2xl:tracking-wider leading-none pt-1 group-hover:text-indigo-600 transition-colors whitespace-nowrap">Máx serv.</span>
+                            <span className="text-[9px] lg:text-[9px] 2xl:text-[13px] font-black text-[#727D84] tracking-tight 2xl:tracking-wider leading-none pt-1 group-hover:text-indigo-600 transition-colors whitespace-nowrap">Máx atención</span>
                             <span className="text-xs lg:text-sm 2xl:text-xl font-black text-indigo-500 leading-none">
                                 {(() => {
                                     const time = globals?.MaxServiceTime || '00:00:00';
@@ -1690,7 +1690,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
 
                     {/* Servicio promedio */}
                     <div className={`min-w-0 bg-gradient-to-br ${getServiceTimeCardColor()} p-2 rounded-lg shadow-lg text-center flex flex-col justify-center border border-white/20`}>
-                        <p className="text-[9px] lg:text-[9px] 2xl:text-[13px] font-black text-white tracking-wider mb-0.5 leading-none">Servicio prom.</p>
+                        <p className="text-[9px] lg:text-[9px] 2xl:text-[13px] font-black text-white tracking-wider mb-0.5 leading-none">Atención prom.</p>
                         <p className="text-sm lg:text-sm 2xl:text-xl font-black text-white leading-none">
                             {formatDuration(dailyStats.servicioProm)}
                         </p>
@@ -1923,7 +1923,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                                 { value: 'Volumen por Minuto', type: 'circle', id: 'volumen', color: '#A3CF62' },
                                                 { value: 'Abandonos por Minuto', type: 'circle', id: 'abandonos', color: '#F15B4E' },
                                                 { value: 'Tiempo prom de espera', type: 'circle', id: 'espera', color: '#2BB8CB' },
-                                                { value: 'Tiempo de servicio promedio', type: 'circle', id: 'servicio', color: '#3b82f6' }
+                                                { value: 'Tiempo de atención promedio', type: 'circle', id: 'servicio', color: '#3b82f6' }
                                             ]}
                                         />
 
@@ -1967,7 +1967,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                             yAxisId="left"
                                             type="monotone"
                                             dataKey="RunningServicio"
-                                            name="Tiempo de servicio promedio"
+                                            name="Tiempo de atención promedio"
                                             stroke="#3b82f6"
                                             fillOpacity={0.4}
                                             fill="url(#colorServicio)"
@@ -2551,7 +2551,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                             <div>
-                                <h3 className="text-base font-black text-slate-800">Máximo Tiempo de Servicio</h3>
+                                <h3 className="text-base font-black text-slate-800">Máximo Tiempo de Atención</h3>
                                 <p className="text-[11px] text-slate-400 font-medium mt-0.5">Ordenado de mayor a menor · Tiempo real</p>
                             </div>
                             <button
