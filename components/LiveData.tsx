@@ -3064,12 +3064,24 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                 {/* FAB Button */}
                 <button
                     onClick={() => setIsChatOpen(!isChatOpen)}
-                    className={`w-14 h-14 rounded-full flex flex-col items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-all text-2xl group relative overflow-hidden bg-[#2BB8CB]`}
+                    className={`w-14 h-14 rounded-full flex flex-col items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-all text-2xl group relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600`}
                 >
                     {!isChatOpen && (
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                     )}
-                    <span className="relative z-10">{isChatOpen ? '⬇' : '✨'}</span>
+                    <span className="relative z-10 text-yellow-400 drop-shadow-sm">
+                        {isChatOpen ? (
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                        ) : (
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 3l1.8 5.6 5.6 1.8-5.6 1.8L12 18l-1.8-5.6-5.6-1.8 5.6-1.8L12 3z"/>
+                                <path d="M18 14l1.2 3.8 3.8 1.2-3.8 1.2L18 24l-1.2-3.8-3.8-1.2 3.8-1.2L18 14z" opacity="0.6"/>
+                                <path d="M5 14l0.8 2.6 2.6 0.8-2.6 0.8L5 21l-0.8-2.6-2.6-0.8 2.6-0.8L5 14z" opacity="0.8"/>
+                            </svg>
+                        )}
+                    </span>
                 </button>
             </div>
         </>
