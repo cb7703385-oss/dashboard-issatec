@@ -1608,6 +1608,21 @@ app.get('/api/live-data/options', requireAuth(), async (req, res) => {
   }
 });
 
+app.get('/api/all-agents', requireAuth(), async (req, res) => {
+  try {
+    const query = `
+      SELECT FullName, AgentState, FunctionName, UnitName
+      FROM \`master-reactor-476520-p0.Dislive.Supervision_Real_Time\`
+      WHERE FullName IS NOT NULL
+    `;
+    const [rows] = await bigquery.query({ query, location: 'southamerica-west1' });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching all agents:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/projections/options', async (req, res) => {
   try {
     const unitQuery = `SELECT DISTINCT unidad_id, nombre_unidad FROM \`master-reactor-476520-p0.Dislive.v_dashboard_plan_2026\` ORDER BY nombre_unidad`;
@@ -1694,18 +1709,41 @@ Reglas:
       parts: [{ text: message }]
     });
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: chatHistory,
-      config: {
-        systemInstruction: systemPrompt,
-        temperature: 0.2, // Temperatura baja para respuestas factuales
-      }
-    });
+    // Lógica de reintento para manejar errores 503 (servidor saturado)
+    let response;
+    let maxRetries = 3;
+    let lastErr;
+
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            response = await ai.models.generateContent({
+                model: 'gemini-flash-latest',
+                contents: chatHistory,
+                config: {
+                    systemInstruction: systemPrompt,
+                    temperature: 0.2,
+                }
+            });
+            break; // Éxito, salir del loop
+        } catch (err) {
+            lastErr = err;
+            // Si es un error 503 o 429 (saturación), reintentar
+            if ((err.status === 503 || err.status === 429) && i < maxRetries - 1) {
+                const waitTime = Math.pow(2, i) * 1000;
+                console.warn(`⚠️ [AI-Chat] Servidor saturado (503/429). Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                continue;
+            }
+            throw err; // Otros errores o agotados los reintentos
+        }
+    }
 
     res.json({ reply: response.text });
   } catch (error) {
-    console.error('Error in AI Chat:', error);
+    console.error('❌ Error in AI Chat:', error);
+    if (error.response) {
+      console.error('API Response Error:', JSON.stringify(error.response, null, 2));
+    }
     res.status(500).json({ error: 'Hubo un error procesando tu solicitud de chat.' });
   }
 });
@@ -1733,36 +1771,44 @@ function requireAuth(requiredRole) {
       }
 
       // Validación de Sesión Única (Kill Session)
-      // Consultamos el session_id actual en BigQuery
       bigquery.query({
-        query: `SELECT session_id FROM \`${USERS_TABLE}\` WHERE id = @id LIMIT 1`,
+        query: `SELECT session_id, last_active FROM \`${USERS_TABLE}\` WHERE id = @id LIMIT 1`,
         params: { id: decoded.userId }
       }).then(([rows]) => {
-        const logMsg = `[${new Date().toISOString()}] User: ${decoded.username} | TokenID: ${decoded.sessionId} | DBID: ${rows[0]?.session_id}\n`;
-        fs.appendFileSync('session_debug.log', logMsg);
-
         if (rows.length > 0) {
-          const currentSessionId = rows[0].session_id;
+          const userRow = rows[0];
+          
+          // 1. Verificar sesión única
+          const currentSessionId = userRow.session_id;
           if (currentSessionId && (!decoded.sessionId || decoded.sessionId !== currentSessionId)) {
-            const kickMsg = `[${new Date().toISOString()}] !!! KICKING USER: ${decoded.username}\n`;
-            fs.appendFileSync('session_debug.log', kickMsg);
             return res.status(401).json({ 
               error: 'SESSION_INVALIDATED', 
-              message: 'Tu sesión ha sido iniciada en otro dispositivo o es antigua. Por favor, ingresa de nuevo.' 
+              message: 'Tu sesión ha sido iniciada en otro dispositivo.' 
+            });
+          }
+
+          // 2. Throttling de Actividad (solo actualizar si pasaron > 60 segundos)
+          const lastActive = userRow.last_active ? new Date(userRow.last_active.value || userRow.last_active) : null;
+          const now = new Date();
+          const shouldUpdate = !lastActive || (now.getTime() - lastActive.getTime() > 60000);
+
+          if (shouldUpdate) {
+            bigquery.query({
+              query: `UPDATE \`${USERS_TABLE}\` SET last_active = CURRENT_TIMESTAMP() WHERE id = @id`,
+              params: { id: decoded.userId }
+            }).catch(err => {
+              // Si falla por concurrencia, no bloqueamos al usuario, solo lo ignoramos
+              if (!err.message.includes('concurrent update')) {
+                console.error('Error actualizando actividad:', err.message);
+              }
             });
           }
         }
         
-        // Si todo está bien, actualizamos actividad y continuamos
-        bigquery.query({
-          query: `UPDATE \`${USERS_TABLE}\` SET last_active = CURRENT_TIMESTAMP() WHERE id = @id`,
-          params: { id: decoded.userId }
-        }).catch(err => console.error('Error actualizando actividad:', err.message));
-
         next();
       }).catch(err => {
         console.error('Error validando sesión:', err);
-        next(); // En caso de error de BQ, permitimos continuar por ahora para no bloquear
+        next();
       });
 
     } catch (err) {

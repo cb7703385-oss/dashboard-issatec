@@ -237,7 +237,12 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                 WaitingByUnit: globals?.WaitingByUnit,
                 dailyStats,
                 AGENTES_POR_UNIDAD: agentsByUnit,
-                TODOS_LOS_AGENTES_ACTIVOS: allAgentsData,
+                TODOS_LOS_AGENTES_ACTIVOS: allAgentsData.map((a: any) => ({
+                    Nombre: a.FullName,
+                    Estado: a.AgentState,
+                    Funcion: a.FunctionName,
+                    Sede: a.UnitName
+                })),
                 ...(agentDrillUnit && agentDrillData.length > 0 ? {
                     AGENTES_DETALLE_UNIDAD: {
                         Unidad: agentDrillUnit,
