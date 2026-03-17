@@ -1661,10 +1661,9 @@ function secondsToTime(seconds) {
 }
 
 app.post('/api/ai-chat', async (req, res) => {
-  try {
-    const { message, history, context } = req.body;
-
-    const systemPrompt = `Eres un asistente inteligente llamado "Asistente de Datos en Vivo" experto en análisis de datos de turnos y atención al cliente. Estás embebido en un dashboard en vivo.
+  const { message, history, context } = req.body;
+  
+  const systemPrompt = `Eres un asistente inteligente llamado "Asistente de Datos en Vivo" experto en análisis de datos de turnos y atención al cliente. Estás embebido en un dashboard en vivo.
 Tu trabajo es responder las preguntas del supervisor analizando el siguiente contexto de datos en tiempo real (JSON):
 
 CONTEXTO ACTUAL:
@@ -1698,6 +1697,8 @@ Reglas:
 6. MUY IMPORTANTE: Si vas a mostrar tiempos de espera o duraciones que vengan en segundos, SIEMPRE repórtalos utilizando formato de reloj HH:MM:SS (ej. 01:25:31) en lugar de dar la cantidad cruda de segundos.
 `;
 
+  try {
+
     const chatHistory = (history || []).map((msg) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }]
@@ -1709,45 +1710,69 @@ Reglas:
       parts: [{ text: message }]
     });
 
-    // Lógica de reintento para manejar errores 503 (servidor saturado)
+    // Lógica de reintento ultra-robusta con detección de tiempo de espera sugerido
     let response;
-    let maxRetries = 3;
+    let maxRetries = 6;
     let lastErr;
 
     for (let i = 0; i < maxRetries; i++) {
         try {
             response = await ai.models.generateContent({
-                model: 'gemini-flash-latest',
+                model: 'gemini-3.1-flash-lite-preview',
                 contents: chatHistory,
                 config: {
                     systemInstruction: systemPrompt,
                     temperature: 0.2,
                 }
             });
-            break; // Éxito, salir del loop
+            break; // Éxito
         } catch (err) {
             lastErr = err;
-            // Si es un error 503 o 429 (saturación), reintentar
-            if ((err.status === 503 || err.status === 429) && i < maxRetries - 1) {
-                const waitTime = Math.pow(2, i) * 1000;
-                console.warn(`⚠️ [AI-Chat] Servidor saturado (503/429). Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+            const isQuotaError = err.message && (err.message.includes('Quota exceeded') || err.message.includes('429'));
+            const isOverloaded = err.status === 503 || err.status === 429 || isQuotaError;
+
+            if (isOverloaded && i < maxRetries - 1) {
+                // Intentar extraer retryDelay de la API de Google (formato: "6s" o "6.5s")
+                let waitTime = Math.pow(2, i + 1) * 1000;
+                let suggestedDelay;
+                
+                if (err.details) {
+                    const retryInfo = err.details.find(d => d['@type'] && d['@type'].includes('RetryInfo'));
+                    if (retryInfo && retryInfo.retryDelay) {
+                        suggestedDelay = parseFloat(retryInfo.retryDelay) * 1000;
+                    }
+                }
+
+                if (suggestedDelay) {
+                    waitTime = suggestedDelay + 1000; // Agregamos 1s de margen
+                    console.warn(`⚠️ [AI-Chat] La API sugiere esperar ${retryInfo.retryDelay}. Esperando ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                } else if (isQuotaError) {
+                    waitTime += 10000; // 10s extra si es cuota y no hay sugerencia
+                    console.warn(`⚠️ [AI-Chat] Cuota de Gemini agotada. Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                } else {
+                    console.warn(`⚠️ [AI-Chat] Servidor saturado (503/429). Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                }
+
                 await new Promise(resolve => setTimeout(resolve, waitTime));
                 continue;
             }
-            throw err; // Otros errores o agotados los reintentos
+            throw err;
         }
     }
 
     res.json({ reply: response.text });
   } catch (error) {
     console.error('❌ Error in AI Chat:', error);
-    if (error.response) {
-      console.error('API Response Error:', JSON.stringify(error.response, null, 2));
+    let errorMessage = 'Hubo un error procesando tu solicitud de chat.';
+    
+    // Si el error persiste tras los reintentos y es de cuota, informamos mejor al usuario
+    if (error.message && error.message.includes('Quota exceeded')) {
+        errorMessage = 'Has alcanzado el límite de consultas gratuitas de Gemini (20 por minuto/día). Por favor, intenta de nuevo en unos minutos.';
     }
-    res.status(500).json({ error: 'Hubo un error procesando tu solicitud de chat.' });
+
+    res.status(500).json({ error: errorMessage });
   }
 });
-
 
 // ==================== AUTH SYSTEM ====================
 const JWT_SECRET = process.env.JWT_SECRET || 'issat_dashboard_secret_2024_!@#$';
