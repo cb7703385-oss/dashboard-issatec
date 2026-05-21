@@ -1,0 +1,11 @@
+.git
+node_modules
+dist
+*.log
+*.out.log
+*.err.log
+.env.local
+bigquery_credentials.json
+package-lock.json
+server-*.log
+vite-*.log

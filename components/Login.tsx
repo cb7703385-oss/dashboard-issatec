@@ -26,7 +26,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         body: JSON.stringify({ username: username.trim(), password, force }),
       });
       const data = await res.json();
-      
+
       if (res.status === 409 && data.error === 'ALREADY_LOGGED_IN') {
         setSessionMessage(data.message);
         setShowSessionModal(true);
@@ -35,350 +35,430 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       }
 
       if (!res.ok) {
-        setError(data.error || 'Error al iniciar sesión');
+        setError(data.error || 'Error al iniciar sesion');
       } else {
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
         onLoginSuccess(data.user);
       }
     } catch {
-      setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
+      setError('No se pudo conectar con el servidor.');
     } finally {
       if (!force) setLoading(false);
     }
   };
 
+  const inputBase: React.CSSProperties = {
+    width: '100%',
+    height: '66px',
+    border: '1px solid #d7e5f5',
+    background: '#e9f2ff',
+    color: '#0f1b2f',
+    fontSize: '15px',
+    fontWeight: 800,
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <div style={{
-      minHeight: '100dvh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif",
-      paddingLeft: '20px',
-      paddingRight: '5%',
-      paddingTop: '20px',
-      paddingBottom: '20px',
-      position: 'relative',
-    }}>
-      {/* Fondo con brillo aumentado — aclaramos toda la imagen sin tocar la tarjeta */}
-      <div style={{
-        position: 'absolute',
-        top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: 'url("/login_bg.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        filter: 'brightness(1.35)',
-        zIndex: 0,
-      }}></div>
+    <main
+      style={{
+        minHeight: '100dvh',
+        fontFamily: "'Inter', 'Segoe UI', sans-serif",
+        color: '#10284a',
+        background: '#edf3f9',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <header
+        style={{
+          height: '114px',
+          background: '#ffffff',
+          borderBottom: '1px solid #dbe4ee',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 clamp(28px, 4.5vw, 84px)',
+          gap: '42px',
+          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06)',
+          flexShrink: 0,
+        }}
+      >
+        <img
+          src="/logo_issatec.png"
+          alt="issatec"
+          style={{ height: '44px', width: 'auto', objectFit: 'contain' }}
+        />
+        <h1
+          style={{
+            margin: 0,
+            color: '#092653',
+            fontSize: '30px',
+            fontWeight: 900,
+            letterSpacing: 0,
+          }}
+        >
+          Dashboard Issatec
+        </h1>
+      </header>
 
-      {/* Overlay mínimo */}
-      <div style={{
-        position: 'absolute',
-        top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(10, 80, 160, 0.06)',
-        zIndex: 1
-      }}></div>
+      <section
+        style={{
+          flex: 1,
+          position: 'relative',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) minmax(420px, 576px)',
+          alignItems: 'center',
+          gap: '72px',
+          padding: '56px clamp(32px, 7vw, 156px)',
+          backgroundImage: 'linear-gradient(90deg, rgba(246,249,253,0.98) 0%, rgba(235,242,250,0.9) 43%, rgba(178,196,219,0.88) 100%), url("/login_bg.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(120deg, rgba(255,255,255,0.52), rgba(255,255,255,0.08)), radial-gradient(circle at 76% 22%, rgba(64,137,192,0.18), transparent 22%)',
+            pointerEvents: 'none',
+          }}
+        />
 
-      {/* CONTENEDOR EXTERIOR — Borde neon cyan grueso + gran glow difuso */}
-      <div style={{
-        position: 'relative',
-        zIndex: 2,
-        border: '3px solid rgba(0, 220, 255, 1)',
-        borderRadius: '16px',
-        padding: '6px', /* Hueco visible entre borde externo e interno */
-        background: 'transparent',
-        /* Glow exterior más suave — no distrae, se ve elegante */
-        boxShadow: '0 0 18px rgba(0, 220, 255, 0.7), 0 0 40px rgba(0, 180, 255, 0.3)',
-        /* Sin rotación 3D — ambos lados de la tarjeta tienen la misma altura */
-        width: '100%',
-        maxWidth: '480px',
-      }}>
-        {/* CONTENEDOR INTERIOR — borde blanco fino, cristal azul translúcido */}
-        <div style={{
-          border: '1.5px solid rgba(255, 255, 255, 0.85)',
-          borderRadius: '10px',
-          padding: '36px 30px',
-          /* Azul translúcido exacto del mockup — ni muy oscuro ni muy claro */
-          background: 'rgba(100, 180, 225, 0.48)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          boxShadow: 'inset 0 0 30px rgba(120, 210, 255, 0.25)',
-        }}>
+        <div style={{ position: 'relative', maxWidth: '830px' }}>
+          <p
+            style={{
+              margin: '0 0 28px',
+              color: '#2f83bd',
+              fontSize: '19px',
+              fontWeight: 900,
+              letterSpacing: '0.38em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Analítica operacional
+          </p>
+          <h2
+            style={{
+              margin: '0 0 30px',
+              color: '#122b50',
+              fontSize: '70px',
+              lineHeight: 1.06,
+              fontWeight: 950,
+              letterSpacing: 0,
+            }}
+          >
+            Datos en vivo
+          </h2>
+          <p
+            style={{
+              margin: 0,
+              maxWidth: '650px',
+              color: '#334967',
+              fontSize: '25px',
+              lineHeight: 1.55,
+              fontWeight: 650,
+            }}
+          >
+            Consulta el comportamiento de sedes, servicios, agentes, tiempos de espera y atención desde una vista ejecutiva.
+          </p>
 
-          {/* CABECERA — Logo centrado arriba, luego textos */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '28px', gap: '8px' }}>
-            <img
-              src="/logo_sin_fondo.png"
-              alt="issatec logo"
-              style={{
-                height: '44px',
-                objectFit: 'contain',
-                /* Filtros para volver el logo completamente blanco y que resalte sobre el azul */
-                filter: 'brightness(0) invert(1)',
-              }}
-            />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: '13px', color: '#c8e8ff', fontWeight: 500, letterSpacing: '0.5px' }}>
-                Bienvenido
-              </span>
-              <span style={{ fontSize: '17px', color: '#d0efff', fontWeight: 800, letterSpacing: '0.5px', textShadow: '0 0 10px rgba(0,220,255,0.6)' }}>
-                INICIAR SESIÓN
-              </span>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(150px, 1fr))',
+              gap: '64px',
+              maxWidth: '520px',
+              marginTop: '46px',
+            }}
+          >
+            <div>
+              <strong style={{ display: 'block', color: '#2e87c2', fontSize: '30px', fontWeight: 950 }}>Sedes</strong>
+              <span style={{ color: '#5d6f89', fontSize: '15px', fontWeight: 900 }}>Seguimiento operativo</span>
+            </div>
+            <div>
+              <strong style={{ display: 'block', color: '#2e87c2', fontSize: '30px', fontWeight: 950 }}>Agentes</strong>
+              <span style={{ color: '#5d6f89', fontSize: '15px', fontWeight: 900 }}>Análisis de atención</span>
             </div>
           </div>
-
-          <form onSubmit={handleSubmit}>
-            {/* Campo Usuario */}
-            <div style={{ marginBottom: '18px' }}>
-              <label style={{
-                display: 'block', fontSize: '14px', fontWeight: 700,
-                color: '#ffffff',
-                marginBottom: '6px',
-              }}>
-                Usuario
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="ingrese su usuario"
-                required
-                autoComplete="username"
-                className="mockup-input"
-                style={{
-                  width: '100%',
-                  padding: '11px 14px',
-                  /* Fondo claro azul-agua como en el mockup (los inputs son más claros que la tarjeta) */
-                  background: 'rgba(190, 230, 250, 0.65)',
-                  border: '1.5px solid rgba(255, 255, 255, 0.80)',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  /* Texto oscuro en los inputs como en el mockup */
-                  color: '#0a2a5a',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.3s ease',
-                }}
-              />
-            </div>
-
-            {/* Campo Contraseña */}
-            <div style={{ marginBottom: '35px' }}>
-              <label style={{
-                display: 'block', fontSize: '14px', fontWeight: 700,
-                color: '#ffffff',
-                marginBottom: '6px',
-              }}>
-                Contraseña
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                  className="mockup-input"
-                  style={{
-                    width: '100%',
-                    padding: '11px 40px 11px 14px',
-                    background: 'rgba(190, 230, 250, 0.65)',
-                    border: '1.5px solid rgba(255, 255, 255, 0.80)',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    color: '#0a2a5a',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    letterSpacing: '3px',
-                    transition: 'all 0.3s ease',
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#1a5080', padding: 0 }}
-                >
-                  {showPassword ? (
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                  ) : (
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Espacio RESERVADO para error — altura fija para no mover el layout */}
-            <div style={{ minHeight: '36px', marginBottom: '8px' }}>
-              {error && (
-                <div style={{
-                  background: 'rgba(220, 50, 50, 0.75)',
-                  border: '1px solid #fca5a5',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <span style={{ fontSize: '13px', color: '#fff', fontWeight: 500 }}>{error}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Botón ENTRAR — Relleno cyan brillante con borde neon, igual al mockup */}
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button
-                type="submit"
-                disabled={loading}
-                className="mockup-btn"
-                style={{
-                  padding: '12px 60px',
-                  /* Relleno cyan sólido (no translúcido) como en la captura */
-                  background: loading
-                    ? 'rgba(0, 170, 210, 0.7)'
-                    : 'rgba(0, 195, 235, 0.75)',
-                  color: '#fff',
-                  border: '2px solid rgba(100, 240, 255, 1)',
-                  /* Mismo border-radius que los inputs (6px) para armonía visual */
-                  borderRadius: '6px',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  letterSpacing: '2px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s',
-                  boxShadow: '0 0 20px rgba(0, 220, 255, 0.8), inset 0 0 10px rgba(255,255,255,0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                }}
-              >
-                {loading && (
-                  <svg style={{ animation: 'spin 1s linear infinite' }} width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                )}
-                {loading ? 'INGRESANDO...' : 'ENTRAR'}
-              </button>
-            </div>
-          </form>
         </div>
 
-        {/* MODAL DE SESIÓN ACTIVA PERSONALIZADO */}
-        {showSessionModal && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            backgroundColor: 'rgba(5, 20, 40, 0.85)',
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="off"
+          style={{
+            position: 'relative',
+            background: 'rgba(248, 251, 255, 0.92)',
+            border: '1px solid rgba(255,255,255,0.85)',
+            borderRadius: '30px',
+            padding: '46px 42px 40px',
+            boxShadow: '0 34px 80px rgba(27, 61, 98, 0.25)',
             backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            animation: 'fadeIn 0.3s ease'
-          }}>
-            <div style={{
-              background: 'rgba(20, 80, 140, 0.9)',
-              border: '2px solid rgba(0, 220, 255, 1)',
-              borderRadius: '16px',
-              padding: '28px',
-              maxWidth: '400px',
-              width: '100%',
-              boxShadow: '0 0 50px rgba(0, 220, 255, 0.4)',
-              textAlign: 'center',
-              animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
-            }}>
-              <div style={{ fontSize: '40px', marginBottom: '16px' }}>⚠️</div>
-              <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 800, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Sesión Activa
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '16px',
+                background: '#2f88bf',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '26px',
+                fontWeight: 950,
+              }}
+            >
+              A
+            </div>
+            <div>
+              <h3 style={{ margin: 0, color: '#101a30', fontSize: '36px', fontWeight: 950, lineHeight: 1 }}>
+                Bienvenido
               </h3>
-              <p style={{ color: '#c8e8ff', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
-                {sessionMessage}
+              <p style={{ margin: '12px 0 0', color: '#667894', fontSize: '15px', fontWeight: 800 }}>
+                Ingresa tus credenciales para continuar
               </p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button
-                  onClick={() => handleSubmit(undefined, true)}
-                  style={{
-                    padding: '12px',
-                    background: 'rgba(0, 220, 255, 0.8)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    boxShadow: '0 0 15px rgba(0, 220, 255, 0.5)',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0, 220, 255, 1)'}
-                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0, 220, 255, 0.8)'}
-                >
-                  SÍ, CERRAR OTRA Y ENTRAR
-                </button>
-                <button
-                  onClick={() => setShowSessionModal(false)}
-                  style={{
-                    padding: '10px',
-                    background: 'transparent',
-                    color: '#c8e8ff',
-                    border: '1px solid rgba(200, 232, 255, 0.3)',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                  onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  NO, REGRESAR
-                </button>
-              </div>
             </div>
           </div>
-        )}
 
-        <style>{`
-          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-          @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          <label style={{ display: 'block', color: '#283852', fontSize: '15px', fontWeight: 900, marginBottom: '8px' }}>
+            Usuario
+          </label>
+          <div style={{ display: 'flex', marginBottom: '26px' }}>
+            <div className="login-icon-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M20 21a8 8 0 0 0-16 0" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <input
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              required
+              placeholder="Usuario"
+              style={{ ...inputBase, borderRadius: '0 15px 15px 0', padding: '0 18px' }}
+            />
+          </div>
 
-          /* Placeholder — texto oscuro (igual que en el mockup) */
-          .mockup-input::placeholder {
-            color: rgba(10, 40, 90, 0.6) !important;
-            font-weight: 400;
-          }
-          /* Focus: resalta el campo seleccionado */
-          .mockup-input:focus {
-            box-shadow: 0 0 12px rgba(0, 220, 255, 0.7) !important;
-            border-color: rgba(0, 220, 255, 1) !important;
-            background: rgba(210, 240, 255, 0.75) !important;
+          <label style={{ display: 'block', color: '#283852', fontSize: '15px', fontWeight: 900, marginBottom: '8px' }}>
+            Contraseña
+          </label>
+          <div style={{ display: 'flex', marginBottom: '20px' }}>
+            <div className="login-icon-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <rect x="4" y="10" width="16" height="10" rx="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+              </svg>
+            </div>
+            <input
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              type={showPassword ? 'text' : 'password'}
+              name="manual-access-key"
+              autoComplete="new-password"
+              required
+              placeholder="Ingresa tu clave de acceso"
+              style={{ ...inputBase, borderRadius: 0, borderRight: 0, padding: '0 18px' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              style={{
+                width: '82px',
+                border: '1px solid #d7e5f5',
+                borderRadius: '0 15px 15px 0',
+                background: '#eef6ff',
+                color: '#2d88c2',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ minHeight: '40px', marginBottom: '8px' }}>
+            {error && (
+              <div
+                style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#b91c1c',
+                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                }}
+              >
+                {error}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '26px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#657792', fontSize: '13px', fontWeight: 900 }}>
+              <input type="checkbox" defaultChecked style={{ accentColor: '#2f88bf' }} />
+              Recordar acceso
+            </label>
+            <a
+              href="https://wa.me/573183764780"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: '#657792',
+                fontSize: '13px',
+                fontWeight: 900,
+                textDecoration: 'none',
+              }}
+            >
+              Soporte ISSATEC
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              height: '64px',
+              border: 0,
+              borderRadius: '15px',
+              background: loading ? '#75add0' : '#318bc0',
+              color: '#fff',
+              fontSize: '20px',
+              fontWeight: 950,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: '0 18px 34px rgba(49, 139, 192, 0.28)',
+            }}
+          >
+            {loading ? 'Ingresando...' : 'Entrar al dashboard'}
+          </button>
+        </form>
+      </section>
+
+      {showSessionModal && (
+        <div className="login-modal-backdrop">
+          <div className="login-modal">
+            <h3>Sesion activa</h3>
+            <p>{sessionMessage}</p>
+            <button onClick={() => handleSubmit(undefined, true)}>Cerrar otra sesion y entrar</button>
+            <button onClick={() => setShowSessionModal(false)} className="secondary">Regresar</button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .login-icon-box {
+          width: 56px;
+          height: 66px;
+          border: 1px solid #d7e5f5;
+          border-right: 0;
+          border-radius: 15px 0 0 15px;
+          background: #f7fbff;
+          color: #8aa2c0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        input::placeholder {
+          color: #7b8da7;
+          font-weight: 700;
+        }
+
+        input:focus {
+          border-color: #2f88bf !important;
+          box-shadow: 0 0 0 3px rgba(47, 136, 191, 0.13);
+          position: relative;
+          z-index: 1;
+        }
+
+        .login-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(15, 23, 42, 0.62);
+          backdrop-filter: blur(6px);
+        }
+
+        .login-modal {
+          width: min(420px, calc(100vw - 32px));
+          background: #fff;
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+          color: #14233b;
+        }
+
+        .login-modal h3 {
+          margin: 0 0 10px;
+          font-size: 22px;
+          font-weight: 950;
+        }
+
+        .login-modal p {
+          margin: 0 0 18px;
+          color: #5d6f89;
+          font-weight: 700;
+          line-height: 1.5;
+        }
+
+        .login-modal button {
+          width: 100%;
+          border: 0;
+          border-radius: 12px;
+          padding: 12px;
+          background: #318bc0;
+          color: #fff;
+          font-weight: 900;
+          cursor: pointer;
+          margin-top: 8px;
+        }
+
+        .login-modal button.secondary {
+          background: #eef4fb;
+          color: #36506f;
+        }
+
+        @media (max-width: 1050px) {
+          section {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+            overflow-y: auto;
           }
 
-          /* PREVENIR FONDO BLANCO DE AUTOCOMPLETADO DE CHROME */
-          .mockup-input:-webkit-autofill,
-          .mockup-input:-webkit-autofill:hover,
-          .mockup-input:-webkit-autofill:focus,
-          .mockup-input:-webkit-autofill:active {
-              -webkit-box-shadow: 0 0 0 30px rgba(190, 230, 250, 0.9) inset !important;
-              -webkit-text-fill-color: #0a2a5a !important;
-              transition: background-color 5000s ease-in-out 0s;
+          header {
+            height: auto !important;
+            min-height: 92px;
+            gap: 20px !important;
+            flex-wrap: wrap;
           }
+        }
 
-          /* Hover del Botón */
-          .mockup-btn:hover {
-            background: rgba(0, 210, 250, 0.9) !important;
-            box-shadow: 0 0 30px rgba(0, 230, 255, 1), inset 0 0 15px rgba(255,255,255,0.3) !important;
-            transform: scale(1.02);
+        @media (max-width: 720px) {
+          h2 {
+            font-size: 46px !important;
           }
-        `}</style>
-      </div>
-    </div>
+        }
+      `}</style>
+    </main>
   );
 };
 
 export default Login;
-

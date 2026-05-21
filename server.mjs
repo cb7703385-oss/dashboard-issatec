@@ -1,4 +1,4 @@
-// Sincronización final: Corrección de tiempos y etiquetas verificada en local - 2026-03-16
+﻿// SincronizaciÃ³n final: CorrecciÃ³n de tiempos y etiquetas verificada en local - 2026-03-16
 import express from 'express';
 import { BigQuery } from '@google-cloud/bigquery';
 import cors from 'cors';
@@ -22,7 +22,7 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos de la carpeta 'dist' (generada por npm run build)
+// Servir archivos estÃ¡ticos de la carpeta 'dist' (generada por npm run build)
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
 
@@ -37,7 +37,7 @@ const bigquery = new BigQuery({
 app.get('/api/query/auto', requireAuth(), async (req, res) => {
   const { date } = req.query;
 
-  // Filtro de fecha: si se proporciona fecha específica, sino últimos 7 días
+  // Filtro de fecha: si se proporciona fecha especÃ­fica, sino Ãºltimos 7 dÃ­as
   const dateClause = date
     ? `DATE(Fecha_Hora_Proceso) = '${date}'`
     : "DATE(Fecha_Hora_Proceso) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)";
@@ -59,7 +59,7 @@ app.get('/api/query/auto', requireAuth(), async (req, res) => {
         WaitingTimeCritical,
         ServiceTimeWarning,
         ServiceTimeCritical
-      FROM \`master-reactor-476520-p0.Dislive.UnitsLiveDetailed\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitsLiveDetailed\`
       WHERE ${dateClause}
     ),
     AggregatedData AS (
@@ -76,15 +76,15 @@ app.get('/api/query/auto', requireAuth(), async (req, res) => {
         COUNTIF(ID_Estado = 6) AS atendidos,
         -- Abandonados: ID_Estado = 4 (Abandoned)
         COUNTIF(ID_Estado = 4) AS abandonados,
-        -- Tiempo promedio de espera: promedio de duración para estados 3 y 11 (Waiting)
+        -- Tiempo promedio de espera: promedio de duraciÃ³n para estados 3 y 11 (Waiting)
         AVG(CASE WHEN ID_Estado IN (3, 11) THEN Duracion_Segundos END) AS avgWaitingTime,
-        -- Tiempo promedio de servicio: promedio de duración para estado 6 (InService)
+        -- Tiempo promedio de servicio: promedio de duraciÃ³n para estado 6 (InService)
         AVG(CASE WHEN ID_Estado = 6 THEN Duracion_Segundos END) AS avgServiceTime,
-        -- Agentes únicos que atendieron
+        -- Agentes Ãºnicos que atendieron
         COUNT(DISTINCT CASE WHEN ID_Estado = 6 THEN UserId END) AS agentes,
         -- Tiempo total de servicio en segundos
         SUM(CASE WHEN ID_Estado = 6 THEN Duracion_Segundos ELSE 0 END) AS totalServiceTimeSeconds,
-        -- Turnos atendidos reales (procesos únicos atendidos)
+        -- Turnos atendidos reales (procesos Ãºnicos atendidos)
         COUNT(DISTINCT CASE WHEN ID_Estado = 6 THEN ProcessId END) AS turnosAtendidosReales,
         -- Umbrales (tomamos el primer valor no nulo)
         MAX(WaitingTimeWarning) AS waitingTimeWarning,
@@ -123,7 +123,7 @@ app.get('/api/query/auto', requireAuth(), async (req, res) => {
       ) AS tiempoTotalServicio,
       CAST(agentes AS INT64) AS agentes,
       CAST(turnosAtendidosReales AS INT64) AS turnosAtendidosReales,
-      -- Estos campos no están disponibles en UnitsLiveDetailed, se ponen en 0
+      -- Estos campos no estÃ¡n disponibles en UnitsLiveDetailed, se ponen en 0
       0 AS atendidosMismaHora,
       0 AS noAtendidosMismaHora,
       COALESCE(waitingTimeWarning, 0) AS waitingTimeWarning,
@@ -160,7 +160,7 @@ app.get('/api/query/services', requireAuth(), async (req, res) => {
     SUM(Abandoned) as abandonados,
     AVG(AvgServiceTime) as avgServiceTime,
     AVG(AvgWaitingTime) as avgWaitingTime
-      FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\`
       WHERE DATE(StartDate) = '${date}' AND EXTRACT(HOUR FROM StartDate) = ${hourInt} AND UnitName = '${unitName}'
       GROUP BY 1, 2, 3, 4
     ),
@@ -170,7 +170,7 @@ app.get('/api/query/services', requireAuth(), async (req, res) => {
         COUNT(DISTINCT UserId) as agentes,
         SUM(CASE WHEN TIMESTAMP_ADD(StartDate, INTERVAL Duration SECOND) <= TIMESTAMP('${endTime}') THEN Duration ELSE TIMESTAMP_DIFF(TIMESTAMP('${endTime}'), StartDate, SECOND) END) as totalServiceTimeSeconds,
         COUNT(DISTINCT ProcessId) as turnosAtendidosReales
-      FROM \`master-reactor-476520-p0.Dislive.AgentServiceTime\`
+      FROM \`master-reactor-476520-p0.LiveData.AgentServiceTime\`
       WHERE StartDate BETWEEN TIMESTAMP('${startTime}') AND TIMESTAMP('${endTime}')
       GROUP BY 1
     )
@@ -237,16 +237,16 @@ app.get('/api/agents-detail', requireAuth(), async (req, res) => {
                 )
             )
         ) as segundos
-      FROM \`master-reactor-476520-p0.Dislive.AgentServiceTime\` s
-      LEFT JOIN \`master-reactor-476520-p0.Dislive.UserFullNameStatus\` u ON s.UserId = u.UserId
-      WHERE s.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
+      FROM \`master-reactor-476520-p0.LiveData.AgentServiceTime\` s
+      LEFT JOIN \`master-reactor-476520-p0.LiveData.UserFullNameStatus\` u ON s.UserId = u.UserId
+      WHERE s.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
         AND DATE(s.StartDate) = '${date}'
         AND (
           EXTRACT(HOUR FROM s.StartDate) = ${hourInt} 
           OR 
           EXTRACT(HOUR FROM TIMESTAMP_ADD(CAST(s.StartDate AS TIMESTAMP), INTERVAL s.Duration SECOND)) = ${hourInt}
         )
-        ${serviceName ? `AND s.ServiceId IN (SELECT DISTINCT ServiceId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE ServiceName = '${serviceName}')` : ''}
+        ${serviceName ? `AND s.ServiceId IN (SELECT DISTINCT ServiceId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE ServiceName = '${serviceName}')` : ''}
       GROUP BY 1, 2
     ),
     BackOfficeTimes AS (
@@ -269,10 +269,10 @@ app.get('/api/agents-detail', requireAuth(), async (req, res) => {
                 )
             )
         ) as segundos
-      FROM \`master-reactor-476520-p0.Dislive.AgentsBackOffice\` b
-      LEFT JOIN \`master-reactor-476520-p0.Dislive.UserFullNameStatus\` u ON b.UserId = u.UserId
+      FROM \`master-reactor-476520-p0.LiveData.AgentsBackOffice\` b
+      LEFT JOIN \`master-reactor-476520-p0.LiveData.UserFullNameStatus\` u ON b.UserId = u.UserId
       WHERE DATE(b.EventDate) = '${date}'
-        AND b.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
+        AND b.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
         AND (
           EXTRACT(HOUR FROM b.EventDate) = ${hourInt} 
           OR 
@@ -300,10 +300,10 @@ app.get('/api/agents-detail', requireAuth(), async (req, res) => {
                 )
             )
         ) as segundos
-      FROM \`master-reactor-476520-p0.Dislive.AgentsSignedOut\` s
-      LEFT JOIN \`master-reactor-476520-p0.Dislive.UserFullNameStatus\` u ON s.UserId = u.UserId
+      FROM \`master-reactor-476520-p0.LiveData.AgentsSignedOut\` s
+      LEFT JOIN \`master-reactor-476520-p0.LiveData.UserFullNameStatus\` u ON s.UserId = u.UserId
       WHERE DATE(s.EventDate) = '${date}'
-        AND s.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
+        AND s.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
         AND (
           EXTRACT(HOUR FROM s.EventDate) = ${hourInt} 
           OR 
@@ -331,10 +331,10 @@ app.get('/api/agents-detail', requireAuth(), async (req, res) => {
                 )
             )
         ) as segundos
-      FROM \`master-reactor-476520-p0.Dislive.TimeIdleDetail\` i
-      LEFT JOIN \`master-reactor-476520-p0.Dislive.UserFullNameStatus\` u ON i.UserId = u.UserId
+      FROM \`master-reactor-476520-p0.LiveData.TimeIdleDetail\` i
+      LEFT JOIN \`master-reactor-476520-p0.LiveData.UserFullNameStatus\` u ON i.UserId = u.UserId
       WHERE DATE(i.EventDate) = '${date}'
-        AND i.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
+        AND i.UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')
         AND (
           EXTRACT(HOUR FROM i.EventDate) = ${hourInt} 
           OR 
@@ -383,10 +383,10 @@ app.get('/api/agents-by-unit', requireAuth(), async (req, res) => {
       a.FullName,
       a.FunctionName,
       a.AgentState
-    FROM \`master-reactor-476520-p0.Dislive.UnitSupervisorDashboardRegional_Agents\` a
+    FROM \`master-reactor-476520-p0.LiveData.UnitSupervisorDashboardRegional_Agents\` a
     WHERE CAST(a.UnitId AS INT64) IN (
       SELECT DISTINCT CAST(UnitId AS INT64)
-      FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\`
       WHERE UnitName = '${unitName.replace(/'/g, "\\'")}'
     )
     AND ${stateClause}
@@ -410,10 +410,10 @@ app.get('/api/all-agents', requireAuth(), async (req, res) => {
       a.FunctionName,
       a.AgentState,
       u.UnitName
-    FROM \`master-reactor-476520-p0.Dislive.UnitSupervisorDashboardRegional_Agents\` a
+    FROM \`master-reactor-476520-p0.LiveData.UnitSupervisorDashboardRegional_Agents\` a
     LEFT JOIN (
       SELECT DISTINCT CAST(UnitId AS INT64) AS UnitId, UnitName
-      FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\`
     ) u ON CAST(a.UnitId AS INT64) = u.UnitId
     WHERE a.AgentState <> 'LoggedOut'
     ORDER BY u.UnitName, a.AgentState, a.FullName
@@ -448,7 +448,7 @@ app.get('/api/waiting-tickets', requireAuth(), async (req, res) => {
         WaitingTimeCritical,
         ROW_NUMBER() OVER (PARTITION BY ProcessId ORDER BY StartDate DESC) AS rn_last,
         MIN(IF(EntityStatus IN (3,11), StartDate, NULL)) OVER (PARTITION BY ProcessId) AS WaitStartDate
-      FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+      FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
       WHERE DATE(StartDate) = DATE('${targetDate}')
         AND EntityStatus NOT IN (40, 41)
         AND IFNULL(CAST(Resolution AS STRING), '') <> '4'
@@ -461,7 +461,7 @@ app.get('/api/waiting-tickets', requireAuth(), async (req, res) => {
       WaitingTimeCritical,
       FORMAT_DATETIME('%Y-%m-%dT%H:%M:%S', DATETIME(WaitStartDate)) AS StartDate,
       DATETIME_DIFF(CURRENT_DATETIME('America/Bogota'), DATETIME(WaitStartDate), SECOND) AS SecondsWaiting
-      -- Se mantiene DATETIME_DIFF por ahora para StartDate, pero usaremos TIMESTAMP para los cálculos de Max
+      -- Se mantiene DATETIME_DIFF por ahora para StartDate, pero usaremos TIMESTAMP para los cÃ¡lculos de Max
     FROM RankedRows
     WHERE rn_last = 1
       AND EntityStatus IN (3, 11)
@@ -501,7 +501,7 @@ app.get('/api/service-tickets', requireAuth(), async (req, res) => {
         ServiceTimeCritical,
         ROW_NUMBER() OVER (PARTITION BY ProcessId ORDER BY StartDate DESC) AS rn_last,
         MIN(IF(EntityStatus = 6, StartDate, NULL)) OVER (PARTITION BY ProcessId) AS ServiceStartDate
-      FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+      FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
       WHERE DATE(StartDate) = DATE('${targetDate}')
         AND EntityStatus NOT IN (40, 41)
         AND IFNULL(CAST(Resolution AS STRING), '') <> '4'
@@ -545,7 +545,7 @@ app.get('/api/query/global-stats', requireAuth(), async (req, res) => {
         AVG(ServiceTimeCritical) as serviceTimeCritical,
         SUM(Served) as totalAtendidos,
         SUM(Abandoned) as totalAbandonados
-      FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\`
       WHERE DATE(StartDate) = '${date}'
       ${unitName ? `AND UnitName = '${unitName}'` : ''}
       ${serviceName ? `AND ServiceName = '${serviceName}'` : ''}
@@ -554,9 +554,9 @@ app.get('/api/query/global-stats', requireAuth(), async (req, res) => {
       SELECT 
         COUNT(DISTINCT UserId) as totalAgentes,
         SUM(Duration) as totalServiceTimeSeconds
-      FROM \`master-reactor-476520-p0.Dislive.AgentServiceTime\`
+      FROM \`master-reactor-476520-p0.LiveData.AgentServiceTime\`
       WHERE DATE(StartDate) = '${date}'
-      ${unitName ? `AND UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.Dislive.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')` : ''}
+      ${unitName ? `AND UnitId IN (SELECT DISTINCT UnitId FROM \`master-reactor-476520-p0.LiveData.UnitServiceRegionalP\` WHERE UnitName = '${unitName}')` : ''}
     )
     SELECT 
       FORMAT_TIMESTAMP('%H:%M:%S', TIMESTAMP_SECONDS(CAST(COALESCE(s.avgWaitingTime, 0) AS INT64))) as avgWaitingTime,
@@ -697,8 +697,8 @@ app.get('/api/daily-analysis', requireAuth(), async (req, res) => {
         cliente: (row[columnMap.cliente] || 'Otros').toString().trim(),
         unidad: (() => {
           const val = (row[columnMap.unidad] || '').toString().trim();
-          if (val === '> Clínica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
-            return '> Centro Médico El Bosque';
+          if (val === '> ClÃ­nica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
+            return '> Centro MÃ©dico El Bosque';
           }
           return val;
         })(),
@@ -747,8 +747,8 @@ app.get('/api/daily-analysis', requireAuth(), async (req, res) => {
     if (rawData[1]) {
       console.log('__EMPTY_15:', rawData[1]['__EMPTY_15']);
       console.log('__EMPTY_16:', rawData[1]['__EMPTY_16']);
-      console.log('__EMPTY_17:', rawData[1]['__EMPTY_17'], '← totalTurnos');
-      console.log('__EMPTY_18:', rawData[1]['__EMPTY_18'], '← abandonos');
+      console.log('__EMPTY_17:', rawData[1]['__EMPTY_17'], 'â† totalTurnos');
+      console.log('__EMPTY_18:', rawData[1]['__EMPTY_18'], 'â† abandonos');
       console.log('__EMPTY_19:', rawData[1]['__EMPTY_19']);
       console.log('__EMPTY_20:', rawData[1]['__EMPTY_20']);
       console.log('__EMPTY_21:', rawData[1]['__EMPTY_21']);
@@ -827,14 +827,14 @@ app.get('/api/daily-analysis', requireAuth(), async (req, res) => {
       unidadesDetalle: Array.from(g.unidadesSet) // Lista de unidades para drill-down
     }));
 
-    // Log para depuración
+    // Log para depuraciÃ³n
     console.log('Daily Analysis - Processed clients:', finalData.map(d => ({
       cliente: d.cliente,
       fecha: d.fecha,
       unidades: d.unidades
     })));
 
-    // También incluir datos sin agrupar para drill-down por unidad
+    // TambiÃ©n incluir datos sin agrupar para drill-down por unidad
     const detailData = mapped.map(item => ({
       cliente: item.cliente,
       fecha: item.fecha,
@@ -853,7 +853,7 @@ app.get('/api/daily-analysis', requireAuth(), async (req, res) => {
   }
 });
 
-// Endpoint para obtener datos de tendencia de 30 días para un cliente específico
+// Endpoint para obtener datos de tendencia de 30 dÃ­as para un cliente especÃ­fico
 app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res) => {
   try {
     const { clientName } = req.params;
@@ -908,8 +908,8 @@ app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res)
         cliente: (row['__EMPTY_1'] || 'Otros').toString(),
         unidad: (() => {
           const val = (row['__EMPTY_2'] || '').toString().trim();
-          if (val === '> Clínica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
-            return '> Centro Médico El Bosque';
+          if (val === '> ClÃ­nica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
+            return '> Centro MÃ©dico El Bosque';
           }
           return val;
         })(),
@@ -927,7 +927,7 @@ app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res)
       };
     });
 
-    // Filtrar por cliente y agrupar por fecha usando normalización
+    // Filtrar por cliente y agrupar por fecha usando normalizaciÃ³n
     const clientData = mapped.filter(d => normalize(d.cliente) === targetCNorm && d.fecha !== 'Unknown');
 
     const grouped = {};
@@ -975,7 +975,7 @@ app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res)
       }))
       .sort((a, b) => a.fecha.localeCompare(b.fecha)); // Ordenar por fecha ascendente
 
-    // Mostrar todos los datos si hay menos de 30 días, sino mostrar últimos 30
+    // Mostrar todos los datos si hay menos de 30 dÃ­as, sino mostrar Ãºltimos 30
     const trendData = allTrendData.length <= 30 ? allTrendData : allTrendData.slice(-30);
 
     console.log(`Trend data points for ${clientName}:`, trendData.length);
@@ -986,7 +986,7 @@ app.get('/api/daily-analysis/trend/:clientName', requireAuth(), async (req, res)
   }
 });
 
-// Endpoint para obtener datos de tendencia de 30 días para una UNIDAD específica de un cliente
+// Endpoint para obtener datos de tendencia de 30 dÃ­as para una UNIDAD especÃ­fica de un cliente
 app.get('/api/daily-analysis/trend/:clientName/:unitName', requireAuth(), async (req, res) => {
   try {
     const { clientName, unitName } = req.params;
@@ -995,7 +995,7 @@ app.get('/api/daily-analysis/trend/:clientName/:unitName', requireAuth(), async 
     const sheetName = workbook.SheetNames[0];
     const rawData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-    // Función de normalización robusta para comparaciones
+    // FunciÃ³n de normalizaciÃ³n robusta para comparaciones
     const normalize = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
 
     const targetCNorm = normalize(clientName);
@@ -1043,8 +1043,8 @@ app.get('/api/daily-analysis/trend/:clientName/:unitName', requireAuth(), async 
         cliente: (row['__EMPTY_1'] || 'Otros').toString(),
         unidad: (() => {
           const val = (row['__EMPTY_2'] || '').toString().trim();
-          if (val === '> Clínica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
-            return '> Centro Médico El Bosque';
+          if (val === '> ClÃ­nica El Bosque' || val.toLowerCase().includes('clinica el bosque')) {
+            return '> Centro MÃ©dico El Bosque';
           }
           return (row['__EMPTY_2'] || 'Otros').toString();
         })(),
@@ -1062,7 +1062,7 @@ app.get('/api/daily-analysis/trend/:clientName/:unitName', requireAuth(), async 
       };
     });
 
-    // Filtrar usando normalización robusta (ignora espacios, símbolos y mayúsculas)
+    // Filtrar usando normalizaciÃ³n robusta (ignora espacios, sÃ­mbolos y mayÃºsculas)
     const filteredData = mapped.filter(d =>
       normalize(d.cliente) === targetCNorm &&
       normalize(d.unidad) === targetUNorm &&
@@ -1129,7 +1129,7 @@ app.get('/api/projections', requireAuth(), async (req, res) => {
     const { date, dateFrom, dateTo, unit, service } = req.query;
     let whereClauses = [];
 
-    // Soporte para fecha única (retrocompatibilidad) o rango de fechas
+    // Soporte para fecha Ãºnica (retrocompatibilidad) o rango de fechas
     if (dateFrom && dateTo) {
       whereClauses.push(`DATE(fecha_proyeccion) BETWEEN '${dateFrom}' AND '${dateTo}'`);
     } else if (date) {
@@ -1144,7 +1144,7 @@ app.get('/api/projections', requireAuth(), async (req, res) => {
     if (service) whereClauses.push(`servicio = '${service}'`);
 
     const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-    const query = `SELECT * FROM \`master-reactor-476520-p0.Dislive.v_dashboard_plan_2026\` ${whereStr} ORDER BY hora`;
+    const query = `SELECT * FROM \`master-reactor-476520-p0.LiveData.v_dashboard_plan_2026\` ${whereStr} ORDER BY hora`;
 
     console.log('Query de Proyecciones:', query);
     const [rows] = await bigquery.query(query);
@@ -1177,7 +1177,7 @@ app.get('/api/live-data', requireAuth(), async (req, res) => {
                       PARTITION BY ProcessId, IF(EntityStatus IN (3,11), 1, 0)
                       ORDER BY StartDate
                   ) AS rn
-              FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+              FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
               WHERE DATE(StartDate) = '${targetDate}'
                 AND EntityStatus NOT IN (40,41)
                 AND Resolution <> "4"
@@ -1217,7 +1217,7 @@ app.get('/api/live-data', requireAuth(), async (req, res) => {
                       PARTITION BY ProcessId, IF(EntityStatus IN (3,11), 1, 0)
                       ORDER BY StartDate
                   ) AS rn
-              FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+              FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
               WHERE DATE(StartDate) = '${targetDate}'
                 AND EntityStatus NOT IN (40,41)
                 AND Resolution <> "4"
@@ -1264,7 +1264,7 @@ app.get('/api/live-data', requireAuth(), async (req, res) => {
                       PARTITION BY ProcessId, IF(EntityStatus IN (3,11), 1, 0)
                       ORDER BY StartDate
                   ) AS rn
-              FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+              FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
               WHERE DATE(StartDate) = '${targetDate}'
                 AND EntityStatus NOT IN (40,41)
                 AND Resolution <> "4"
@@ -1523,7 +1523,7 @@ app.get('/api/live-data', requireAuth(), async (req, res) => {
         SUM(AgentsInBackOffice) as AgentsInBackOffice,
         SUM(AgentsInService) as AgentsInService,
         SUM(AgentsInReception) as AgentsInReception
-      FROM \`master-reactor-476520-p0.Dislive.UnitSupervisorDashboardRegional\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitSupervisorDashboardRegional\`
       WHERE ${unit ? `UnitName LIKE '${unit}%'` : '1=1'}
     `;
 
@@ -1538,7 +1538,7 @@ app.get('/api/live-data', requireAuth(), async (req, res) => {
         SUM(COALESCE(AgentsIdle, 0)) as AgentsIdle,
         SUM(COALESCE(AgentsInBackOffice, 0)) as AgentsInBackOffice,
         SUM(COALESCE(AgentsInReception, 0)) as AgentsInReception
-      FROM \`master-reactor-476520-p0.Dislive.UnitSupervisorDashboardRegional\`
+      FROM \`master-reactor-476520-p0.LiveData.UnitSupervisorDashboardRegional\`
       WHERE ${unit ? `UPPER(UnitName) LIKE UPPER('${unit}%')` : '1=1'}
       GROUP BY UnitName
       HAVING CurrentlyWaiting > 0 OR AgentsSignedIn > 0
@@ -1581,7 +1581,7 @@ app.get('/api/live-data/options', requireAuth(), async (req, res) => {
 
     const unitQuery = `
       SELECT DISTINCT Oficina 
-      FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+      FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
       WHERE DATE(StartDate) = '${targetDate}'
         AND Oficina IS NOT NULL
       ORDER BY Oficina
@@ -1589,7 +1589,7 @@ app.get('/api/live-data/options', requireAuth(), async (req, res) => {
 
     const serviceQuery = `
       SELECT DISTINCT ServiceName AS Servicio 
-      FROM \`master-reactor-476520-p0.Dislive.Turnos_Detalle\`
+      FROM \`master-reactor-476520-p0.LiveData.Turnos_Detalle\`
       WHERE DATE(StartDate) = '${targetDate}'
         AND ServiceName IS NOT NULL
       ORDER BY Servicio
@@ -1612,7 +1612,7 @@ app.get('/api/all-agents', requireAuth(), async (req, res) => {
   try {
     const query = `
       SELECT FullName, AgentState, FunctionName, UnitName
-      FROM \`master-reactor-476520-p0.Dislive.Supervision_Real_Time\`
+      FROM \`master-reactor-476520-p0.LiveData.Supervision_Real_Time\`
       WHERE FullName IS NOT NULL
     `;
     const [rows] = await bigquery.query({ query, location: 'southamerica-west1' });
@@ -1625,9 +1625,9 @@ app.get('/api/all-agents', requireAuth(), async (req, res) => {
 
 app.get('/api/projections/options', async (req, res) => {
   try {
-    const unitQuery = `SELECT DISTINCT unidad_id, nombre_unidad FROM \`master-reactor-476520-p0.Dislive.v_dashboard_plan_2026\` ORDER BY nombre_unidad`;
-    const serviceQuery = `SELECT DISTINCT servicio FROM \`master-reactor-476520-p0.Dislive.v_dashboard_plan_2026\` ORDER BY servicio`;
-    const dateQuery = `SELECT DISTINCT DATE(fecha_proyeccion) as fecha FROM \`master-reactor-476520-p0.Dislive.v_dashboard_plan_2026\` ORDER BY fecha DESC`;
+    const unitQuery = `SELECT DISTINCT unidad_id, nombre_unidad FROM \`master-reactor-476520-p0.LiveData.v_dashboard_plan_2026\` ORDER BY nombre_unidad`;
+    const serviceQuery = `SELECT DISTINCT servicio FROM \`master-reactor-476520-p0.LiveData.v_dashboard_plan_2026\` ORDER BY servicio`;
+    const dateQuery = `SELECT DISTINCT DATE(fecha_proyeccion) as fecha FROM \`master-reactor-476520-p0.LiveData.v_dashboard_plan_2026\` ORDER BY fecha DESC`;
 
     const [unitRows] = await bigquery.query(unitQuery);
     const [serviceRows] = await bigquery.query(serviceQuery);
@@ -1663,7 +1663,7 @@ function secondsToTime(seconds) {
 app.post('/api/ai-chat', async (req, res) => {
   const { message, history, context } = req.body;
   
-  const systemPrompt = `Eres un asistente inteligente llamado "Asistente de Datos en Vivo" experto en análisis de datos de turnos y atención al cliente. Estás embebido en un dashboard en vivo.
+  const systemPrompt = `Eres un asistente inteligente llamado "Asistente de Datos en Vivo" experto en anÃ¡lisis de datos de turnos y atenciÃ³n al cliente. EstÃ¡s embebido en un dashboard en vivo.
 Tu trabajo es responder las preguntas del supervisor analizando el siguiente contexto de datos en tiempo real (JSON):
 
 CONTEXTO ACTUAL:
@@ -1672,29 +1672,29 @@ ${JSON.stringify(context, null, 2)}
 CONOCIMIENTO DE TABLAS:
 Tienes acceso a los datos de la tabla \`UnitSupervisorDashboardRegional_Agents\` que contiene el estado en tiempo real de cada agente.
 Estructura de la tabla:
-- UserId (INTEGER): identificador único del agente
+- UserId (INTEGER): identificador Ãºnico del agente
 - FullName (STRING): nombre completo del agente
 - UnitId (FLOAT): identificador de la unidad a la que pertenece el agente
-- FunctionName (STRING): función o cola asignada al agente (ej. General, Preferencial, Turno Inteligente)
+- FunctionName (STRING): funciÃ³n o cola asignada al agente (ej. General, Preferencial, Turno Inteligente)
 - AgentState (STRING): estado actual del agente. Valores posibles:
   * "LoggedIn" = Conectado (logueado pero sin atender)
   * "LoggedOut" = Desconectado
-  * "InService" = En Atención (atendiendo un turno actualmente)
+  * "InService" = En AtenciÃ³n (atendiendo un turno actualmente)
   * "Idle" = Inactivo (conectado pero sin turno)
   * "BackOffice" = En Backoffice
-  * "Reception" = En Recepción
+  * "Reception" = En RecepciÃ³n
 
-En el contexto "AGENTES_POR_UNIDAD" encontrarás los conteos por unidad y por estado ya calculados.
-Si el usuario cargó el detalle de una unidad específica, encontrarás los datos individuales en "AGENTES_DETALLE_UNIDAD".
+En el contexto "AGENTES_POR_UNIDAD" encontrarÃ¡s los conteos por unidad y por estado ya calculados.
+Si el usuario cargÃ³ el detalle de una unidad especÃ­fica, encontrarÃ¡s los datos individuales en "AGENTES_DETALLE_UNIDAD".
 
 Reglas:
-1. Sé extremadamente conciso, directo al punto y amable.
+1. SÃ© extremadamente conciso, directo al punto y amable.
 2. Usa lenguaje claro y directo. Saluda si es el primer mensaje.
-3. Formatea tu respuesta usando Markdown (negritas para métricas clave o unidades importantes).
-4. El término "AgentsIdle" en los datos significa "Agentes Inactivos". No uses la palabra "Disponibles", usa siempre "Inactivos".
-5. Si te preguntan algo fuera de los datos de este dashboard de monitoreo en vivo, di que solo tienes acceso a la visión actual.
-5. NO inventes datos. Usa únicamente el JSON provisto arriba.
-6. MUY IMPORTANTE: Si vas a mostrar tiempos de espera o duraciones que vengan en segundos, SIEMPRE repórtalos utilizando formato de reloj HH:MM:SS (ej. 01:25:31) en lugar de dar la cantidad cruda de segundos.
+3. Formatea tu respuesta usando Markdown (negritas para mÃ©tricas clave o unidades importantes).
+4. El tÃ©rmino "AgentsIdle" en los datos significa "Agentes Inactivos". No uses la palabra "Disponibles", usa siempre "Inactivos".
+5. Si te preguntan algo fuera de los datos de este dashboard de monitoreo en vivo, di que solo tienes acceso a la visiÃ³n actual.
+5. NO inventes datos. Usa Ãºnicamente el JSON provisto arriba.
+6. MUY IMPORTANTE: Si vas a mostrar tiempos de espera o duraciones que vengan en segundos, SIEMPRE repÃ³rtalos utilizando formato de reloj HH:MM:SS (ej. 01:25:31) en lugar de dar la cantidad cruda de segundos.
 `;
 
   try {
@@ -1704,13 +1704,13 @@ Reglas:
       parts: [{ text: msg.content }]
     }));
 
-    // Añadir el mensaje actual del usuario
+    // AÃ±adir el mensaje actual del usuario
     chatHistory.push({
       role: 'user',
       parts: [{ text: message }]
     });
 
-    // Lógica de reintento ultra-robusta con detección de tiempo de espera sugerido
+    // LÃ³gica de reintento ultra-robusta con detecciÃ³n de tiempo de espera sugerido
     let response;
     let maxRetries = 6;
     let lastErr;
@@ -1725,7 +1725,7 @@ Reglas:
                     temperature: 0.2,
                 }
             });
-            break; // Éxito
+            break; // Ã‰xito
         } catch (err) {
             lastErr = err;
             const isQuotaError = err.message && (err.message.includes('Quota exceeded') || err.message.includes('429'));
@@ -1745,12 +1745,12 @@ Reglas:
 
                 if (suggestedDelay) {
                     waitTime = suggestedDelay + 1000; // Agregamos 1s de margen
-                    console.warn(`⚠️ [AI-Chat] La API sugiere esperar ${retryInfo.retryDelay}. Esperando ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                    console.warn(`âš ï¸ [AI-Chat] La API sugiere esperar ${retryInfo.retryDelay}. Esperando ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
                 } else if (isQuotaError) {
                     waitTime += 10000; // 10s extra si es cuota y no hay sugerencia
-                    console.warn(`⚠️ [AI-Chat] Cuota de Gemini agotada. Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                    console.warn(`âš ï¸ [AI-Chat] Cuota de Gemini agotada. Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
                 } else {
-                    console.warn(`⚠️ [AI-Chat] Servidor saturado (503/429). Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
+                    console.warn(`âš ï¸ [AI-Chat] Servidor saturado (503/429). Reintentando en ${waitTime}ms... (Intento ${i + 1}/${maxRetries})`);
                 }
 
                 await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -1762,12 +1762,12 @@ Reglas:
 
     res.json({ reply: response.text });
   } catch (error) {
-    console.error('❌ Error in AI Chat:', error);
+    console.error('âŒ Error in AI Chat:', error);
     let errorMessage = 'Hubo un error procesando tu solicitud de chat.';
     
     // Si el error persiste tras los reintentos y es de cuota, informamos mejor al usuario
     if (error.message && error.message.includes('Quota exceeded')) {
-        errorMessage = 'Has alcanzado el límite de consultas gratuitas de Gemini (20 por minuto/día). Por favor, intenta de nuevo en unos minutos.';
+        errorMessage = 'Has alcanzado el lÃ­mite de consultas gratuitas de Gemini (20 por minuto/dÃ­a). Por favor, intenta de nuevo en unos minutos.';
     }
 
     res.status(500).json({ error: errorMessage });
@@ -1775,8 +1775,8 @@ Reglas:
 });
 
 // ==================== AUTH SYSTEM ====================
-const JWT_SECRET = process.env.JWT_SECRET || 'issat_dashboard_secret_2024_!@#$';
-const DATASET = 'Dislive';
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-development';
+const DATASET = 'LiveData';
 const USERS_TABLE = `master-reactor-476520-p0.${DATASET}.usuarios`;
 
 // Middleware: validates JWT and optionally checks role
@@ -1792,10 +1792,10 @@ function requireAuth(requiredRole) {
       req.user = decoded;
       
       if (requiredRole && decoded.rol !== requiredRole) {
-        return res.status(403).json({ error: 'No tienes permisos para esta acción' });
+        return res.status(403).json({ error: 'No tienes permisos para esta acciÃ³n' });
       }
 
-      // Validación de Sesión Única (Kill Session)
+      // ValidaciÃ³n de SesiÃ³n Ãšnica (Kill Session)
       bigquery.query({
         query: `SELECT session_id, last_active FROM \`${USERS_TABLE}\` WHERE id = @id LIMIT 1`,
         params: { id: decoded.userId }
@@ -1803,12 +1803,12 @@ function requireAuth(requiredRole) {
         if (rows.length > 0) {
           const userRow = rows[0];
           
-          // 1. Verificar sesión única
+          // 1. Verificar sesiÃ³n Ãºnica
           const currentSessionId = userRow.session_id;
           if (currentSessionId && (!decoded.sessionId || decoded.sessionId !== currentSessionId)) {
             return res.status(401).json({ 
               error: 'SESSION_INVALIDATED', 
-              message: 'Tu sesión ha sido iniciada en otro dispositivo.' 
+              message: 'Tu sesiÃ³n ha sido iniciada en otro dispositivo.' 
             });
           }
 
@@ -1832,12 +1832,12 @@ function requireAuth(requiredRole) {
         
         next();
       }).catch(err => {
-        console.error('Error validando sesión:', err);
+        console.error('Error validando sesiÃ³n:', err);
         next();
       });
 
     } catch (err) {
-      return res.status(401).json({ error: 'Token inválido o expirado' });
+      return res.status(401).json({ error: 'Token invÃ¡lido o expirado' });
     }
   };
 }
@@ -1859,7 +1859,7 @@ async function initUsersTable() {
       )
     `;
     await bigquery.query({ query: createTableSQL });
-    console.log('✅ Tabla usuarios lista en BigQuery.');
+    console.log('âœ… Tabla usuarios lista en BigQuery.');
 
     // Check if any user exists
     const [rows] = await bigquery.query({ query: `SELECT COUNT(*) as cnt FROM \`${USERS_TABLE}\`` });
@@ -1871,40 +1871,40 @@ async function initUsersTable() {
         query: `INSERT INTO \`${USERS_TABLE}\` (id, username, password_hash, nombre, rol, activo, created_at) VALUES (@id, @username, @password_hash, @nombre, @rol, TRUE, CURRENT_TIMESTAMP())`,
         params: { id: uid, username: 'admin', password_hash: hash, nombre: 'Administrador', rol: 'admin' }
       });
-      console.log('✅ Usuario admin creado por defecto (admin / admin123)');
+      console.log('âœ… Usuario admin creado por defecto (admin / admin123)');
     }
   } catch (err) {
-    console.error('❌ Error inicializando tabla usuarios:', err.message);
+    console.error('âŒ Error inicializando tabla usuarios:', err.message);
   }
 }
 
 // POST /api/auth/login
 app.post('/api/auth/login', async (req, res) => {
   const { username, password, force } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
+  if (!username || !password) return res.status(400).json({ error: 'Usuario y contraseÃ±a requeridos' });
   try {
     const [rows] = await bigquery.query({
       query: `SELECT *, (last_active > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 5 MINUTE)) as is_online FROM \`${USERS_TABLE}\` WHERE username = @username AND activo = TRUE LIMIT 1`,
       params: { username }
     });
     
-    if (rows.length === 0) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+    if (rows.length === 0) return res.status(401).json({ error: 'Usuario o contraseÃ±a incorrectos' });
     const user = rows[0];
     
     const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+    if (!match) return res.status(401).json({ error: 'Usuario o contraseÃ±a incorrectos' });
 
-    // Verificar si ya hay una sesión activa y no se ha forzado el cierre
+    // Verificar si ya hay una sesiÃ³n activa y no se ha forzado el cierre
     if (user.is_online && user.session_id && !force) {
       return res.status(409).json({ 
         error: 'ALREADY_LOGGED_IN', 
-        message: 'Ya tienes una sesión activa en otro dispositivo. ¿Deseas cerrarla e ingresar aquí?' 
+        message: 'Ya tienes una sesiÃ³n activa en otro dispositivo. Â¿Deseas cerrarla e ingresar aquÃ­?' 
       });
     }
 
     const newSessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Actualizar última actividad y session_id
+    // Actualizar Ãºltima actividad y session_id
     await bigquery.query({
       query: `UPDATE \`${USERS_TABLE}\` SET last_active = CURRENT_TIMESTAMP(), session_id = @sessionId WHERE id = @id`,
       params: { id: user.id, sessionId: newSessionId }
@@ -1930,7 +1930,7 @@ app.get('/api/auth/verify', requireAuth(), (req, res) => {
   res.json({ user: req.user });
 });
 
-// GET /api/admin/users — list all users (admin only)
+// GET /api/admin/users â€” list all users (admin only)
 app.get('/api/admin/users', requireAuth('admin'), async (req, res) => {
   try {
     const [rows] = await bigquery.query({ 
@@ -1948,7 +1948,7 @@ app.get('/api/admin/users', requireAuth('admin'), async (req, res) => {
   }
 });
 
-// POST /api/admin/users — create user (admin only)
+// POST /api/admin/users â€” create user (admin only)
 app.post('/api/admin/users', requireAuth('admin'), async (req, res) => {
   const { username, password, nombre, rol } = req.body;
   if (!username || !password || !rol) return res.status(400).json({ error: 'Faltan campos requeridos' });
@@ -1968,7 +1968,7 @@ app.post('/api/admin/users', requireAuth('admin'), async (req, res) => {
   }
 });
 
-// PUT /api/admin/users/:id — edit user (admin only)
+// PUT /api/admin/users/:id â€” edit user (admin only)
 app.put('/api/admin/users/:id', requireAuth('admin'), async (req, res) => {
   const { id } = req.params;
   const { nombre, rol, activo, password } = req.body;
@@ -1991,7 +1991,7 @@ app.put('/api/admin/users/:id', requireAuth('admin'), async (req, res) => {
   }
 });
 
-// DELETE /api/admin/users/:id — delete user (admin only)
+// DELETE /api/admin/users/:id â€” delete user (admin only)
 app.delete('/api/admin/users/:id', requireAuth('admin'), async (req, res) => {
   const { id } = req.params;
   // Prevent deleting yourself
@@ -2005,8 +2005,8 @@ app.delete('/api/admin/users/:id', requireAuth('admin'), async (req, res) => {
 });
 // ==================== END AUTH SYSTEM ====================
 
-// Ruta comodín para manejar el routing de React (SPA)
-app.get('*', (req, res) => {
+// Ruta comodÃ­n para manejar el routing de React (SPA)
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
@@ -2014,3 +2014,4 @@ app.listen(port, async () => {
   console.log(`Backend server running at http://localhost:${port}`);
   await initUsersTable();
 });
+
