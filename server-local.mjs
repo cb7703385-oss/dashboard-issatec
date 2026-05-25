@@ -49,6 +49,10 @@ const services = [
 
 const todayBogota = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
 const toTimestamp = (date, hour, minute, second = 0) => `${date} ${pad(hour)}:${pad(minute)}:${pad(second)}-05`;
+const randomBetween = (min, max) => min + Math.random() * (max - min);
+
+let syntheticRefreshPromise = null;
+let lastSyntheticRefreshAt = 0;
 
 async function initDatabase() {
   await pool.query(`
@@ -150,13 +154,14 @@ async function seedDemoData(date = todayBogota()) {
             );
 
             const baseTurns = service.id === 8101 ? 5 : service.id === 8102 ? 4 : service.id === 8103 ? 3 : 2;
-            const turns = Math.max(1, Math.round(baseTurns * peak * wave));
+            const liveJitter = randomBetween(0.82, 1.2);
+            const turns = Math.max(1, Math.round(baseTurns * peak * wave * liveJitter));
 
             for (let i = 0; i < turns; i++) {
               processId += 1;
-              const waitDuration = Math.round(210 + peak * 145 + ((i + unit.id + service.id) % 7) * 28);
-              const serviceDuration = Math.round(280 + peak * 80 + ((i + hour) % 5) * 35);
-              const abandoned = (i + hour + minute + unit.id + service.id) % 17 === 0;
+              const waitDuration = Math.max(45, Math.round(210 + peak * 145 + ((i + unit.id + service.id) % 7) * 28 + randomBetween(-45, 55)));
+              const serviceDuration = Math.max(60, Math.round(280 + peak * 80 + ((i + hour) % 5) * 35 + randomBetween(-35, 65)));
+              const abandoned = Math.random() < randomBetween(0.045, 0.08);
               const startSecond = (i * 7) % 60;
               const common = [
                 processId,
@@ -206,15 +211,15 @@ async function seedDemoData(date = todayBogota()) {
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           unit.name,
-          Math.max(1, 18 - index * 4),
-          unit.agents - 8,
-          secondsToClock(780 - index * 75),
-          secondsToClock(610 - index * 45),
+          Math.max(1, 18 - index * 4 + Math.round(randomBetween(-3, 5))),
+          Math.max(1, unit.agents - 8 + Math.round(randomBetween(-2, 3))),
+          secondsToClock(780 - index * 75 + Math.round(randomBetween(-70, 95))),
+          secondsToClock(610 - index * 45 + Math.round(randomBetween(-45, 75))),
           unit.agents,
-          5 + index,
-          2 + index,
-          unit.agents - 8,
-          index === 0 ? 2 : 1,
+          Math.max(0, 5 + index + Math.round(randomBetween(-2, 3))),
+          Math.max(0, 2 + index + Math.round(randomBetween(-1, 2))),
+          Math.max(1, unit.agents - 8 + Math.round(randomBetween(-2, 3))),
+          Math.max(0, (index === 0 ? 2 : 1) + Math.round(randomBetween(0, 2))),
         ],
       );
 
@@ -244,7 +249,7 @@ async function seedDemoData(date = todayBogota()) {
   }
 }
 
-async function ensureDemoDataForDate(date = todayBogota()) {
+async function ensureDemoDataForDate(date = todayBogota(), options = {}) {
   const { rows } = await pool.query(
     'SELECT COUNT(*)::int AS count FROM turnos_detalle WHERE start_date::date = $1',
     [date],
@@ -253,6 +258,26 @@ async function ensureDemoDataForDate(date = todayBogota()) {
   if (rows[0].count === 0) {
     console.log(`No demo data found for ${date}; generating synthetic LiveData rows.`);
     await seedDemoData(date);
+    lastSyntheticRefreshAt = Date.now();
+    return;
+  }
+
+  const shouldRefresh = options.refresh === true
+    && process.env.LIVE_DEMO_REFRESH !== 'false'
+    && date === todayBogota()
+    && Date.now() - lastSyntheticRefreshAt >= 60000;
+
+  if (shouldRefresh) {
+    if (!syntheticRefreshPromise) {
+      syntheticRefreshPromise = seedDemoData(date)
+        .then(() => {
+          lastSyntheticRefreshAt = Date.now();
+        })
+        .finally(() => {
+          syntheticRefreshPromise = null;
+        });
+    }
+    await syntheticRefreshPromise;
   }
 }
 
@@ -385,7 +410,7 @@ app.get('/api/live-data/options', requireAuth(), async (req, res) => {
 app.get('/api/live-data', requireAuth(), async (req, res) => {
   const { unit, service, granularity = 'hour' } = req.query;
   const targetDate = req.query.date || todayBogota();
-  await ensureDemoDataForDate(targetDate);
+  await ensureDemoDataForDate(targetDate, { refresh: true });
   const trunc = granularity === 'minute' ? 'minute' : 'hour';
   const timeFormat = granularity === 'minute' ? 'HH24:MI' : 'HH24:00';
   const params = [targetDate];

@@ -26,6 +26,15 @@ const authHeaders = () => ({
     'Authorization': `Bearer ${getToken()}`,
 });
 
+const todayBogota = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+const formatWholeNumber = (value: unknown) => Number(value || 0).toLocaleString('es-CO');
+const formatBogotaTime = (date: Date) => date.toLocaleTimeString('es-CO', {
+    timeZone: 'America/Bogota',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+
 export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin }) => {
     const [hourData, setHourData] = useState<LiveDataItem[]>([]);
     const [minuteData, setMinuteData] = useState<LiveDataItem[]>([]);
@@ -40,7 +49,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
     const [error, setError] = useState<string | null>(null);
     const [selectedSede, setSelectedSede] = useState<string>('');
     const [selectedService, setSelectedService] = useState<string>('');
-    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState<string>(todayBogota());
     const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
     const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('minute');
     const [focusedHour, setFocusedHour] = useState<string | null>(null);
@@ -75,7 +84,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
         try {
             const dateParam = window.location.search.includes('date=')
                 ? new URLSearchParams(window.location.search).get('date')
-                : new Date().toISOString().split('T')[0];
+                : todayBogota();
             const resp = await fetch(`/api/waiting-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`, { headers: authHeaders() });
             const data = await resp.json();
             if (resp.status === 401 && data.error === 'SESSION_INVALIDATED') {
@@ -106,7 +115,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
         try {
             const dateParam = window.location.search.includes('date=')
                 ? new URLSearchParams(window.location.search).get('date')
-                : new Date().toISOString().split('T')[0];
+                : todayBogota();
             const resp = await fetch(`/api/service-tickets?unitName=${encodeURIComponent(unitName)}&date=${dateParam}`, { headers: authHeaders() });
             const data = await resp.json();
             if (resp.status === 401 && data.error === 'SESSION_INVALIDATED') {
@@ -1158,7 +1167,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                     </div>
                                     <div className={`shrink-0 text-right px-1 ${type === 'time' ? 'w-[60px] 2xl:w-[75px]' : 'w-[85px] 2xl:w-[100px]'}`}>
                                         <div className={`text-[10px] 2xl:text-xs font-mono ${getStatusClass()}`}>
-                                            {type === 'time' ? formatDuration(rawValue) : rawValue.toLocaleString()}
+                                            {type === 'time' ? formatDuration(rawValue) : formatWholeNumber(rawValue)}
                                         </div>
                                     </div>
                                     {type === 'time' && (
@@ -1312,7 +1321,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
             displayValue = `${p(hours)}:${p(minutes)}:${p(seconds)}`;
         } else {
             // Number formatting: Thousands separators
-            displayValue = Math.round(value).toLocaleString();
+            displayValue = formatWholeNumber(Math.round(value));
         }
 
         // Position indicators clearly outside the plot area, in the 80px margin
@@ -1385,18 +1394,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
         );
     };
 
-    const dataMaxTime = useMemo(() => {
-        const sourceData = minuteData && (minuteData as any[]).length > 0 ? minuteData as any[] :
-            hourData && (hourData as any[]).length > 0 ? hourData as any[] : [];
-        if (sourceData.length > 0) {
-            const maxTimeStr = sourceData.reduce((max: string, curr: any) =>
-                curr.Hora_Minuto > max ? curr.Hora_Minuto : max, '00:00');
-            if (maxTimeStr > '00:00') {
-                return maxTimeStr;
-            }
-        }
-        return lastUpdate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }, [minuteData, hourData, lastUpdate]);
+    const displayUpdateTime = useMemo(() => formatBogotaTime(lastUpdate), [lastUpdate]);
 
     // Grouping logic for summary view
     const groupedData = useMemo(() => {
@@ -1440,7 +1438,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                 <span className="mr-1.5 opacity-75">Última actualización</span>
                                 <span className="font-bold">{selectedDate.split('-').reverse().join('/')}</span>
                                 <span className="mx-1 opacity-50">•</span>
-                                <span className="font-bold">{dataMaxTime}</span>
+                                <span className="font-bold">{displayUpdateTime}</span>
                             </p>
                         </div>
                     </div>
@@ -1611,7 +1609,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                 <p className="text-sm lg:text-sm 2xl:text-xl font-black text-[#002B49] leading-none">
                                     {(() => {
                                         const total = globals ? (selectedSede ? (globals.GlobalOficina_TotalTurnos || 0) : (globals.Global_TotalTurnos || 0)) : dailyStats.volumenTotal;
-                                        return total.toLocaleString();
+                                        return formatWholeNumber(total);
                                     })()}
                                 </p>
                                 <p className="text-[9px] lg:text-[9px] 2xl:text-[13px] font-black text-[#727D84] tracking-wider leading-none pt-1">
@@ -1649,13 +1647,13 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                                         <div className="flex items-center gap-1.5">
                                             <div className="w-2 h-2 rounded-full bg-[#A3CF62]"></div>
                                             <p className="text-[10px] 2xl:text-xs font-bold text-slate-500">
-                                                Atendidos <span className="font-medium text-slate-700">{atendidos.toLocaleString()} ({atendidosPct}%)</span>
+                                                Atendidos <span className="font-medium text-slate-700">{formatWholeNumber(atendidos)} ({atendidosPct}%)</span>
                                             </p>
                                         </div>
 
                                         <div className="flex items-center gap-1.5">
                                             <p className="text-[10px] 2xl:text-xs font-bold text-slate-500">
-                                                Abandonos <span className="font-medium text-slate-700">{abandonos.toLocaleString()} ({abandonosPct}%)</span>
+                                                Abandonos <span className="font-medium text-slate-700">{formatWholeNumber(abandonos)} ({abandonosPct}%)</span>
                                             </p>
                                             <div className="w-2 h-2 rounded-full bg-[#F15B4E]"></div>
                                         </div>

@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgres://dashboard:dashboard@db:5432/livedata_dashboard
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       SEED_DEMO_ON_START: "true"
+      LIVE_DEMO_REFRESH: ${LIVE_DEMO_REFRESH:-true}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.1-flash-lite}
 
