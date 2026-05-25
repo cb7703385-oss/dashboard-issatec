@@ -204,6 +204,18 @@ async function seedDemoData(date = todayBogota()) {
     }
 
     for (const [index, unit] of units.entries()) {
+      const agentsInService = Math.max(1, unit.agents - 8 + Math.round(randomBetween(-2, 3)));
+      const agentsIdle = Math.max(0, 5 + index + Math.round(randomBetween(-2, 3)));
+      const agentsInBackOffice = Math.max(0, 2 + index + Math.round(randomBetween(-1, 2)));
+      const agentsInReception = Math.max(0, (index === 0 ? 2 : 1) + Math.round(randomBetween(0, 2)));
+      const agentsSignedIn = agentsInService + agentsIdle + agentsInBackOffice + agentsInReception;
+      const agentStates = [
+        ...Array.from({ length: agentsInService }, () => 'InService'),
+        ...Array.from({ length: agentsIdle }, () => 'Idle'),
+        ...Array.from({ length: agentsInBackOffice }, () => 'BackOffice'),
+        ...Array.from({ length: agentsInReception }, () => 'Reception'),
+      ];
+
       await client.query(
         `INSERT INTO unit_supervisor_dashboard_regional
          (unit_name, currently_waiting, currently_in_service, max_waiting_time, max_service_time,
@@ -212,19 +224,18 @@ async function seedDemoData(date = todayBogota()) {
         [
           unit.name,
           Math.max(1, 18 - index * 4 + Math.round(randomBetween(-3, 5))),
-          Math.max(1, unit.agents - 8 + Math.round(randomBetween(-2, 3))),
+          agentsInService,
           secondsToClock(780 - index * 75 + Math.round(randomBetween(-70, 95))),
           secondsToClock(610 - index * 45 + Math.round(randomBetween(-45, 75))),
-          unit.agents,
-          Math.max(0, 5 + index + Math.round(randomBetween(-2, 3))),
-          Math.max(0, 2 + index + Math.round(randomBetween(-1, 2))),
-          Math.max(1, unit.agents - 8 + Math.round(randomBetween(-2, 3))),
-          Math.max(0, (index === 0 ? 2 : 1) + Math.round(randomBetween(0, 2))),
+          agentsSignedIn,
+          agentsIdle,
+          agentsInBackOffice,
+          agentsInService,
+          agentsInReception,
         ],
       );
 
-      const states = ['InService', 'Idle', 'BackOffice', 'Reception'];
-      for (let i = 1; i <= unit.agents; i++) {
+      for (let i = 1; i <= agentStates.length; i++) {
         await client.query(
           `INSERT INTO unit_supervisor_dashboard_regional_agents
            (user_id, full_name, function_name, agent_state, unit_id)
@@ -233,7 +244,7 @@ async function seedDemoData(date = todayBogota()) {
             unit.id * 1000 + i,
             `Agente ${unit.name} ${pad(i)}`,
             i % 3 === 0 ? 'Asesor especializado' : 'Asesor servicio',
-            states[i % states.length],
+            agentStates[i - 1],
             unit.id,
           ],
         );
@@ -487,7 +498,7 @@ async function buildGlobals(rows, unit) {
     }));
   const rankings = buildRankings(clean);
 
-  return {
+  const result = {
     Global_TotalTurnos: served.length + abandoned.length,
     Global_Atendidos: served.length,
     Global_Abandonados: abandoned.length,
@@ -510,6 +521,19 @@ async function buildGlobals(rows, unit) {
     WaitingByUnit: waitingByUnit,
     ...rankings,
   };
+
+  if (unit) {
+    Object.assign(result, {
+      GlobalOficina_TotalTurnos: result.Global_TotalTurnos,
+      GlobalOficina_Atendidos: result.Global_Atendidos,
+      GlobalOficina_Abandonados: result.Global_Abandonados,
+      GlobalOficina_AvgEsperaSeg: result.Global_AvgEsperaSeg,
+      GlobalOficina_AvgAtencionSeg: result.Global_AvgAtencionSeg,
+      Oficina_PorcentajeEsperaEnObjetivo: result.Global_PorcentajeEsperaEnObjetivo,
+    });
+  }
+
+  return result;
 }
 
 function buildRankings(rows) {

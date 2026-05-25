@@ -1638,7 +1638,7 @@ export const LiveData: React.FC<LiveDataProps> = ({ user, onLogout, onOpenAdmin 
                             {(() => {
                                 const total = globals ? (selectedSede ? (globals.GlobalOficina_TotalTurnos || 0) : (globals.Global_TotalTurnos || 0)) : dailyStats.volumenTotal;
                                 const atendidos = globals ? (selectedSede ? (globals.GlobalOficina_Atendidos || 0) : (globals.Global_Atendidos || 0)) : (dailyStats.volumenTotal - dailyStats.abandonosTotal);
-                                const abandonos = dailyStats.abandonosTotal;
+                                const abandonos = globals ? (selectedSede ? (globals.GlobalOficina_Abandonados || 0) : (globals.Global_Abandonados || 0)) : dailyStats.abandonosTotal;
                                 const atendidosPct = total > 0 ? Math.round((atendidos / total) * 100) : 0;
                                 const abandonosPct = total > 0 ? Math.round((abandonos / total) * 100) : 0;
 
