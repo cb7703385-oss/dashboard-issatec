@@ -55,6 +55,7 @@ const randomBetween = (min, max) => min + Math.random() * (max - min);
 
 let syntheticRefreshPromise = null;
 let lastSyntheticRefreshAt = 0;
+let lastPruneDate = '';
 
 async function initDatabase() {
   await pool.query(`
@@ -291,7 +292,30 @@ async function seedDemoData(date = todayBogota()) {
   }
 }
 
+async function pruneOldDemoData(currentDate = todayBogota()) {
+  if (lastPruneDate === currentDate) return;
+
+  const unitNames = units.map((unit) => unit.name);
+  const unitIds = units.map((unit) => unit.id);
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM turnos_detalle WHERE start_date::date <> $1 AND oficina = ANY($2)', [currentDate, unitNames]);
+    await client.query('DELETE FROM unit_service_regionalp WHERE start_date::date <> $1 AND unit_id = ANY($2)', [currentDate, unitIds]);
+    await client.query('COMMIT');
+    lastPruneDate = currentDate;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 async function ensureDemoDataForDate(date = todayBogota(), options = {}) {
+  await pruneOldDemoData(todayBogota());
+
   const { rows } = await pool.query(
     'SELECT COUNT(*)::int AS count FROM turnos_detalle WHERE start_date::date = $1',
     [date],
@@ -857,6 +881,7 @@ app.get(/.*/, (_req, res) => {
 });
 
 await initDatabase();
+await pruneOldDemoData(todayBogota());
 if (process.env.SEED_DEMO_ON_START !== 'false') {
   await seedDemoData(todayBogota());
 }
