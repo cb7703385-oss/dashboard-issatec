@@ -47,6 +47,8 @@ const services = [
   { id: 8104, name: 'Radicacion' },
 ];
 
+const serviceForIndex = (index) => services[index % services.length];
+
 const todayBogota = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
 const toTimestamp = (date, hour, minute, second = 0) => `${date} ${pad(hour)}:${pad(minute)}:${pad(second)}-05`;
 const randomBetween = (min, max) => min + Math.random() * (max - min);
@@ -209,6 +211,9 @@ async function seedDemoData(date = todayBogota()) {
       const agentsInBackOffice = Math.max(0, 2 + index + Math.round(randomBetween(-1, 2)));
       const agentsInReception = Math.max(0, (index === 0 ? 2 : 1) + Math.round(randomBetween(0, 2)));
       const agentsSignedIn = agentsInService + agentsIdle + agentsInBackOffice + agentsInReception;
+      const currentlyWaiting = Math.max(1, 18 - index * 4 + Math.round(randomBetween(-3, 5)));
+      const maxWaitSeconds = Math.max(60, 780 - index * 75 + Math.round(randomBetween(-70, 95)));
+      const maxServiceSeconds = Math.max(60, 610 - index * 45 + Math.round(randomBetween(-45, 75)));
       const agentStates = [
         ...Array.from({ length: agentsInService }, () => 'InService'),
         ...Array.from({ length: agentsIdle }, () => 'Idle'),
@@ -220,13 +225,13 @@ async function seedDemoData(date = todayBogota()) {
         `INSERT INTO unit_supervisor_dashboard_regional
          (unit_name, currently_waiting, currently_in_service, max_waiting_time, max_service_time,
           agents_signed_in, agents_idle, agents_in_backoffice, agents_in_service, agents_in_reception)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           unit.name,
-          Math.max(1, 18 - index * 4 + Math.round(randomBetween(-3, 5))),
+          currentlyWaiting,
           agentsInService,
-          secondsToClock(780 - index * 75 + Math.round(randomBetween(-70, 95))),
-          secondsToClock(610 - index * 45 + Math.round(randomBetween(-45, 75))),
+          secondsToClock(maxWaitSeconds),
+          secondsToClock(maxServiceSeconds),
           agentsSignedIn,
           agentsIdle,
           agentsInBackOffice,
@@ -247,6 +252,32 @@ async function seedDemoData(date = todayBogota()) {
             agentStates[i - 1],
             unit.id,
           ],
+        );
+      }
+
+      for (let i = 0; i < currentlyWaiting; i++) {
+        processId += 1;
+        const service = serviceForIndex(i + index);
+        const waitSeconds = i === 0 ? maxWaitSeconds : Math.max(45, maxWaitSeconds - Math.round(randomBetween(25, 360)));
+        await client.query(
+          `INSERT INTO turnos_detalle
+           (process_id, service_id, service_name, oficina, resolution, entity_status, duration, start_date,
+            waiting_time_standard, waiting_time_warning, waiting_time_critical, service_time_warning, service_time_critical)
+           VALUES ($1,$2,$3,$4,'live_wait',3,$5::int,NOW() - ($5::int * INTERVAL '1 second'),420,600,900,480,720)`,
+          [processId, service.id, service.name, unit.name, waitSeconds],
+        );
+      }
+
+      for (let i = 0; i < agentsInService; i++) {
+        processId += 1;
+        const service = serviceForIndex(i + index + 1);
+        const serviceSeconds = i === 0 ? maxServiceSeconds : Math.max(60, maxServiceSeconds - Math.round(randomBetween(20, 300)));
+        await client.query(
+          `INSERT INTO turnos_detalle
+           (process_id, service_id, service_name, oficina, resolution, entity_status, duration, start_date,
+            waiting_time_standard, waiting_time_warning, waiting_time_critical, service_time_warning, service_time_critical)
+           VALUES ($1,$2,$3,$4,'live_service',6,$5::int,NOW() - ($5::int * INTERVAL '1 second'),420,600,900,480,720)`,
+          [processId, service.id, service.name, unit.name, serviceSeconds],
         );
       }
     }
@@ -714,7 +745,7 @@ app.get('/api/waiting-tickets', requireAuth(), async (req, res) => {
        SELECT *, ROW_NUMBER() OVER (PARTITION BY process_id ORDER BY start_date DESC) AS rn_last,
               MIN(CASE WHEN entity_status IN (3,11) THEN start_date END) OVER (PARTITION BY process_id) AS wait_start_date
        FROM turnos_detalle
-       WHERE start_date::date = $1 AND oficina ILIKE $2 AND entity_status NOT IN (40,41) AND resolution <> '4'
+       WHERE start_date::date = $1 AND oficina ILIKE $2 AND entity_status NOT IN (40,41) AND resolution = 'live_wait'
      )
      SELECT process_id AS "ProcessId", service_name AS "ServiceName",
             waiting_time_warning AS "WaitingTimeWarning", waiting_time_critical AS "WaitingTimeCritical",
@@ -739,7 +770,7 @@ app.get('/api/service-tickets', requireAuth(), async (req, res) => {
        SELECT *, ROW_NUMBER() OVER (PARTITION BY process_id ORDER BY start_date DESC) AS rn_last,
               MIN(CASE WHEN entity_status = 6 THEN start_date END) OVER (PARTITION BY process_id) AS service_start_date
        FROM turnos_detalle
-       WHERE start_date::date = $1 AND oficina ILIKE $2 AND entity_status NOT IN (40,41) AND resolution <> '4'
+       WHERE start_date::date = $1 AND oficina ILIKE $2 AND entity_status NOT IN (40,41) AND resolution = 'live_service'
      )
      SELECT process_id AS "ProcessId", service_name AS "ServiceName",
             service_time_warning AS "ServiceTimeWarning", service_time_critical AS "ServiceTimeCritical",
