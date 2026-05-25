@@ -27,6 +27,13 @@ const App: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }).catch(() => {});
+    }
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     setUser(null);

@@ -411,6 +411,14 @@ app.get('/api/auth/verify', requireAuth(), (req, res) => {
   res.json({ user: req.user });
 });
 
+app.post('/api/auth/logout', requireAuth(), async (req, res) => {
+  await pool.query(
+    'UPDATE usuarios SET session_id = NULL, last_active = NULL WHERE id = $1 AND session_id = $2',
+    [req.user.userId, req.user.sessionId],
+  );
+  res.json({ success: true });
+});
+
 app.get('/api/admin/users', requireAuth('admin'), async (_req, res) => {
   const { rows } = await pool.query('SELECT id, username, nombre, rol, activo, created_at FROM usuarios ORDER BY created_at DESC');
   res.json(rows);
